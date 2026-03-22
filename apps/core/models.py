@@ -53,7 +53,7 @@ class SiteSetting(models.Model):
     # Contact Info
     phone_primary = models.CharField(max_length=15, default='+254700000000')
     phone_secondary = models.CharField(max_length=15, blank=True)
-    email = models.EmailField(default='hello@everestcakes.co.ke')
+    email = models.EmailField(default='info@everestcakes.com')
     address = models.TextField(default='Thika, Kenya')
     whatsapp_number = models.CharField(max_length=15, default='+254700000000')
     

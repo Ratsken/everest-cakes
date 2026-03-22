@@ -216,7 +216,7 @@ EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Everest Cakes <hello@everestcakes.co.ke>')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Everest Cakes <info@everestcakes.com>')
 
 # Site URL
 SITE_URL = config('SITE_URL', default='http://localhost:8000')
@@ -240,7 +240,7 @@ ADMIN_WHATSAPP_NUMBER = config('ADMIN_WHATSAPP_NUMBER', default='')
 BUSINESS_NAME = config('BUSINESS_NAME', default='Everest Cakes')
 BUSINESS_PHONE = config('BUSINESS_PHONE', default='+254713311344')
 BUSINESS_WHATSAPP = config('BUSINESS_WHATSAPP', default='+254713311344')
-BUSINESS_EMAIL = config('BUSINESS_EMAIL', default='hello@everestcakes.co.ke')
+BUSINESS_EMAIL = config('BUSINESS_EMAIL', default='info@everestcakes.com')
 BUSINESS_ADDRESS = config('BUSINESS_ADDRESS', default='Thika Town, Kenya')
 
 # Delivery Settings

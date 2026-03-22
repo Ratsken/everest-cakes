@@ -17,7 +17,7 @@ def seed_real_business_data(apps, schema_editor):
             'site_description': 'We are Everest Cakes, we are all about cakes. Welcome all. Order celebration cakes from Thika Town.',
             'phone_primary': '+254713311344',
             'phone_secondary': '+254723780139',
-            'email': 'hello@everestcakes.co.ke',
+            'email': 'info@everestcakes.com',
             'address': 'Thika Town, Kenya',
             'whatsapp_number': '+254713311344',
             'monday_friday': '8:00 AM - 7:00 PM',

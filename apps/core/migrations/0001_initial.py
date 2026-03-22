@@ -236,7 +236,7 @@ class Migration(migrations.Migration):
                 (
                     "email",
                     models.EmailField(
-                        default="hello@everestcakes.co.ke", max_length=254
+                        default="info@everestcakes.com", max_length=254
                     ),
                 ),
                 ("address", models.TextField(default="Thika, Kenya")),

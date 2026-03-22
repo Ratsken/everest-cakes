@@ -141,4 +141,4 @@ This project is licensed under the MIT License.
 
 ## 👥 Support
 
-For support, email hello@everestcakes.co.ke or WhatsApp +254 700 000 000.
+For support, email info@everestcakes.com or WhatsApp +254 700 000 000.

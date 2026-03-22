@@ -123,7 +123,7 @@ class Command(BaseCommand):
                 'site_description': 'We are Everest Cakes, we are all about cakes. Welcome all. Order celebration cakes from Thika Town.',
                 'phone_primary': '+254713311344',
                 'phone_secondary': '+254723780139',
-                'email': 'hello@everestcakes.co.ke',
+                'email': 'info@everestcakes.com',
                 'address': 'Thika Town, Kenya',
                 'whatsapp_number': '+254713311344',
                 'monday_friday': '8:00 AM - 7:00 PM',
@@ -192,7 +192,7 @@ class Command(BaseCommand):
 <p>We implement appropriate security measures to protect your personal information from unauthorized access, alteration, or disclosure.</p>
 
 <h3>Contact Us</h3>
-<p>If you have questions about this privacy policy, please contact us at hello@everestcakes.co.ke or call +254713311344.</p>''',
+<p>If you have questions about this privacy policy, please contact us at info@everestcakes.com or call +254713311344.</p>''',
                 'show_in_footer': True,
                 'order': 2,
             },
@@ -219,7 +219,7 @@ class Command(BaseCommand):
 <p>Orders can be cancelled or modified up to 24 hours before the scheduled delivery time. Cancellations within 24 hours may incur a cancellation fee.</p>
 
 <h3>Contact</h3>
-<p>For questions about these terms, please contact us at hello@everestcakes.co.ke.</p>''',
+<p>For questions about these terms, please contact us at info@everestcakes.com.</p>''',
                 'show_in_footer': True,
                 'order': 3,
             },
