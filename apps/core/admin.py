@@ -2,13 +2,22 @@ from django.contrib import admin
 from django.utils.html import format_html
 from unfold.admin import ModelAdmin, TabularInline
 from unfold.decorators import action, display
+from import_export.admin import ImportExportModelAdmin
 from .models import User, SiteSetting, Page, HeroSection, FeaturedCard, Testimonial
+from .resources import (
+    UserResource,
+    SiteSettingResource,
+    PageResource,
+    HeroSectionResource,
+    FeaturedCardResource,
+    TestimonialResource,
+)
 from django.contrib.sites.models import Site
 from django.contrib import admin as django_admin
 from django.contrib.admin.sites import AlreadyRegistered
 
 
-class SiteAdmin(ModelAdmin):
+class SiteAdmin(ImportExportModelAdmin, ModelAdmin):
     list_display = ['domain', 'name']
     search_fields = ['domain', 'name']
     readonly_fields = []
@@ -29,7 +38,8 @@ def environment_callback(request):
 
 
 @admin.register(User)
-class UserAdmin(ModelAdmin):
+class UserAdmin(ImportExportModelAdmin, ModelAdmin):
+    resource_class = UserResource
     list_display = ['email', 'full_name', 'phone_number', 'is_verified', 'is_staff', 'created_at']
     list_filter = ['is_verified', 'is_staff', 'is_active', 'newsletter_subscribed']
     search_fields = ['email', 'first_name', 'last_name', 'phone_number']
@@ -57,7 +67,8 @@ class UserAdmin(ModelAdmin):
 
 
 @admin.register(SiteSetting)
-class SiteSettingAdmin(ModelAdmin):
+class SiteSettingAdmin(ImportExportModelAdmin, ModelAdmin):
+    resource_class = SiteSettingResource
     list_display = ['site_name', 'email', 'phone_primary']
     fieldsets = (
         ('Site Information', {
@@ -90,7 +101,8 @@ class SiteSettingAdmin(ModelAdmin):
 
 
 @admin.register(Page)
-class PageAdmin(ModelAdmin):
+class PageAdmin(ImportExportModelAdmin, ModelAdmin):
+    resource_class = PageResource
     list_display = ['title', 'slug', 'is_published', 'show_in_footer', 'order', 'preview']
     list_filter = ['is_published', 'show_in_footer']
     search_fields = ['title', 'content']
@@ -122,7 +134,8 @@ class PageAdmin(ModelAdmin):
 
 
 @admin.register(HeroSection)
-class HeroSectionAdmin(ModelAdmin):
+class HeroSectionAdmin(ImportExportModelAdmin, ModelAdmin):
+    resource_class = HeroSectionResource
     list_display = ['title', 'background_type', 'is_active', 'order', 'preview']
     list_filter = ['background_type', 'is_active']
     list_editable = ['order', 'is_active']
@@ -161,7 +174,8 @@ class HeroSectionAdmin(ModelAdmin):
 
 
 @admin.register(FeaturedCard)
-class FeaturedCardAdmin(ModelAdmin):
+class FeaturedCardAdmin(ImportExportModelAdmin, ModelAdmin):
+    resource_class = FeaturedCardResource
     list_display = ['title', 'icon', 'animation_type', 'is_active', 'show_on_homepage', 'order']
     list_filter = ['animation_type', 'is_active', 'show_on_homepage']
     list_editable = ['order', 'is_active', 'show_on_homepage']
@@ -183,7 +197,8 @@ class FeaturedCardAdmin(ModelAdmin):
 
 
 @admin.register(Testimonial)
-class TestimonialAdmin(ModelAdmin):
+class TestimonialAdmin(ImportExportModelAdmin, ModelAdmin):
+    resource_class = TestimonialResource
     list_display = ['customer_name', 'rating', 'occasion', 'is_verified', 'is_featured', 'created_at']
     list_filter = ['rating', 'is_verified', 'is_featured', 'is_active']
     search_fields = ['customer_name', 'comment']

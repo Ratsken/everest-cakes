@@ -7,7 +7,16 @@ from .models import (
     Product, Category, ProductVariant, ProductReview,
     ProductAttribute, ProductAttributeOption, ProductAttributeMapping, ProductAddon
 )
-from .resources import ProductResource, CategoryResource
+from .resources import (
+    ProductResource,
+    CategoryResource,
+    ProductVariantResource,
+    ProductReviewResource,
+    ProductAttributeResource,
+    ProductAttributeOptionResource,
+    ProductAttributeMappingResource,
+    ProductAddonResource,
+)
 
 
 class ProductVariantInline(TabularInline):
@@ -56,7 +65,8 @@ class ProductAttributeOptionInline(TabularInline):
 
 
 @admin.register(ProductAttribute)
-class ProductAttributeAdmin(ModelAdmin):
+class ProductAttributeAdmin(ImportExportModelAdmin, ModelAdmin):
+    resource_class = ProductAttributeResource
     list_display = ['name', 'slug', 'is_required', 'option_count', 'order']
     list_editable = ['order', 'is_required']
     search_fields = ['name', 'slug', 'description']
@@ -69,7 +79,8 @@ class ProductAttributeAdmin(ModelAdmin):
 
 
 @admin.register(ProductAttributeOption)
-class ProductAttributeOptionAdmin(ModelAdmin):
+class ProductAttributeOptionAdmin(ImportExportModelAdmin, ModelAdmin):
+    resource_class = ProductAttributeOptionResource
     list_display = ['name', 'attribute', 'price_adjustment', 'is_available', 'order']
     list_filter = ['attribute', 'is_available']
     list_editable = ['price_adjustment', 'is_available', 'order']
@@ -77,7 +88,8 @@ class ProductAttributeOptionAdmin(ModelAdmin):
 
 
 @admin.register(ProductAddon)
-class ProductAddonAdmin(ModelAdmin):
+class ProductAddonAdmin(ImportExportModelAdmin, ModelAdmin):
+    resource_class = ProductAddonResource
     list_display = ['name', 'slug', 'price', 'is_free', 'is_available', 'order']
     list_filter = ['is_free', 'is_available']
     list_editable = ['price', 'is_free', 'is_available', 'order']
@@ -187,14 +199,16 @@ class ProductAdmin(ImportExportModelAdmin, ModelAdmin):
 
 
 @admin.register(ProductVariant)
-class ProductVariantAdmin(ModelAdmin):
+class ProductVariantAdmin(ImportExportModelAdmin, ModelAdmin):
+    resource_class = ProductVariantResource
     list_display = ['product', 'name', 'weight', 'price_adjustment', 'stock_quantity', 'is_default']
     list_filter = ['product', 'is_default']
     search_fields = ['product__name', 'name']
 
 
 @admin.register(ProductReview)
-class ProductReviewAdmin(ModelAdmin):
+class ProductReviewAdmin(ImportExportModelAdmin, ModelAdmin):
+    resource_class = ProductReviewResource
     list_display = ['product', 'user_display', 'rating', 'title', 'is_approved', 'created_at']
     list_filter = ['rating', 'is_approved', 'is_verified_purchase']
     search_fields = ['product__name', 'user__email', 'guest_name', 'comment']
@@ -209,7 +223,8 @@ class ProductReviewAdmin(ModelAdmin):
 
 
 @admin.register(ProductAttributeMapping)
-class ProductAttributeMappingAdmin(ModelAdmin):
+class ProductAttributeMappingAdmin(ImportExportModelAdmin, ModelAdmin):
+    resource_class = ProductAttributeMappingResource
     list_display = ['product', 'attribute', 'is_required', 'default_option']
     list_filter = ['attribute', 'is_required']
     search_fields = ['product__name', 'attribute__name']

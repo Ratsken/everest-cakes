@@ -6,7 +6,13 @@ from unfold.admin import ModelAdmin, TabularInline
 from unfold.decorators import action, display
 from import_export.admin import ImportExportModelAdmin
 from .models import Order, OrderTracking, PaymentTransaction, OrderAttachment, Enquiry
-from .resources import OrderResource
+from .resources import (
+    OrderResource,
+    OrderTrackingResource,
+    PaymentTransactionResource,
+    OrderAttachmentResource,
+    EnquiryResource,
+)
 
 
 class OrderAttachmentInline(admin.TabularInline):
@@ -246,28 +252,32 @@ class OrderAdmin(ImportExportModelAdmin, ModelAdmin):
 
 
 @admin.register(OrderAttachment)
-class OrderAttachmentAdmin(ModelAdmin):
+class OrderAttachmentAdmin(ImportExportModelAdmin, ModelAdmin):
+    resource_class = OrderAttachmentResource
     list_display = ['order', 'attachment_type', 'description', 'created_at']
     list_filter = ['attachment_type', 'created_at']
     search_fields = ['order__order_number']
 
 
 @admin.register(OrderTracking)
-class OrderTrackingAdmin(ModelAdmin):
+class OrderTrackingAdmin(ImportExportModelAdmin, ModelAdmin):
+    resource_class = OrderTrackingResource
     list_display = ['order', 'status', 'description', 'created_at']
     list_filter = ['status', 'created_at']
     search_fields = ['order__order_number']
 
 
 @admin.register(PaymentTransaction)
-class PaymentTransactionAdmin(ModelAdmin):
+class PaymentTransactionAdmin(ImportExportModelAdmin, ModelAdmin):
+    resource_class = PaymentTransactionResource
     list_display = ['order', 'provider', 'transaction_id', 'amount', 'status', 'created_at']
     list_filter = ['provider', 'status', 'created_at']
     search_fields = ['order__order_number', 'transaction_id']
 
 
 @admin.register(Enquiry)
-class EnquiryAdmin(ModelAdmin):
+class EnquiryAdmin(ImportExportModelAdmin, ModelAdmin):
+    resource_class = EnquiryResource
     list_display = ['name', 'email', 'phone', 'subject', 'product', 'status', 
                     'email_sent', 'whatsapp_sent', 'created_at']
     list_filter = ['status', 'email_sent', 'whatsapp_sent', 'created_at']

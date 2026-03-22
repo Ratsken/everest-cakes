@@ -4,6 +4,7 @@ from unfold.admin import ModelAdmin, TabularInline
 from unfold.decorators import display
 from import_export.admin import ImportExportModelAdmin
 from .models import Post, BlogCategory, Comment
+from .resources import PostResource, BlogCategoryResource, CommentResource
 
 
 class CommentInline(TabularInline):
@@ -14,7 +15,8 @@ class CommentInline(TabularInline):
 
 
 @admin.register(BlogCategory)
-class BlogCategoryAdmin(ModelAdmin):
+class BlogCategoryAdmin(ImportExportModelAdmin, ModelAdmin):
+    resource_class = BlogCategoryResource
     list_display = ['name', 'slug', 'post_count', 'order', 'is_active']
     list_editable = ['order', 'is_active']
     prepopulated_fields = {'slug': ['name']}
@@ -26,6 +28,7 @@ class BlogCategoryAdmin(ModelAdmin):
 
 @admin.register(Post)
 class PostAdmin(ImportExportModelAdmin, ModelAdmin):
+    resource_class = PostResource
     list_display = ['title', 'category', 'author', 'status', 'is_featured', 'view_count', 'published_at']
     list_filter = ['status', 'is_featured', 'category', 'author']
     search_fields = ['title', 'content', 'excerpt']
@@ -61,7 +64,8 @@ class PostAdmin(ImportExportModelAdmin, ModelAdmin):
 
 
 @admin.register(Comment)
-class CommentAdmin(ModelAdmin):
+class CommentAdmin(ImportExportModelAdmin, ModelAdmin):
+    resource_class = CommentResource
     list_display = ['post', 'user_display', 'content_preview', 'is_approved', 'created_at']
     list_filter = ['is_approved', 'created_at']
     search_fields = ['post__title', 'user__email', 'guest_name', 'content']

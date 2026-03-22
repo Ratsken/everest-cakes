@@ -1,6 +1,8 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin
+from import_export.admin import ImportExportModelAdmin
 from .models import Cart, CartItem
+from .resources import CartResource, CartItemResource
 
 
 class CartItemInline(admin.TabularInline):
@@ -10,7 +12,8 @@ class CartItemInline(admin.TabularInline):
 
 
 @admin.register(Cart)
-class CartAdmin(ModelAdmin):
+class CartAdmin(ImportExportModelAdmin, ModelAdmin):
+    resource_class = CartResource
     list_display = ['id', 'user', 'session_key', 'total_items', 'total', 'created_at']
     list_filter = ['created_at']
     search_fields = ['user__email', 'session_key']
@@ -19,6 +22,7 @@ class CartAdmin(ModelAdmin):
 
 
 @admin.register(CartItem)
-class CartItemAdmin(ModelAdmin):
+class CartItemAdmin(ImportExportModelAdmin, ModelAdmin):
+    resource_class = CartItemResource
     list_display = ['cart', 'product', 'variant', 'quantity', 'unit_price', 'total_price']
     list_filter = ['product', 'variant']
