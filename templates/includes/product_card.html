@@ -26,9 +26,9 @@
             
             <!-- Quick Actions -->
             <div class="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onclick="event.preventDefault(); openCart()" class="p-2 bg-white rounded-full shadow-lg hover:bg-gold hover:text-brand-dark transition-colors">
+                <span class="p-2 bg-white rounded-full shadow-lg hover:bg-gold hover:text-brand-dark transition-colors inline-flex" aria-label="View product details">
                     <i data-lucide="shopping-bag" class="w-5 h-5"></i>
-                </button>
+                </span>
             </div>
         </div>
         
@@ -49,7 +49,7 @@
             <div class="flex items-center gap-1 mt-2">
                 <div class="flex items-center">
                     {% for i in "12345" %}
-                    <i data-lucide="star" class="w-3 h-3 text-gold {% if forloop.counter <= product.average_rating|floor %}fill-gold{% endif %}"></i>
+                    <i data-lucide="star" class="w-3 h-3 text-gold {% if forloop.counter <= product.average_rating %}fill-gold{% endif %}"></i>
                     {% endfor %}
                 </div>
                 <span class="text-xs text-gray-400 font-sans">({{ product.review_count }})</span>

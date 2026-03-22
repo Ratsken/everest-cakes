@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
@@ -6,6 +7,11 @@
     <title>{% block title %}{{ BUSINESS_NAME|default:"Everest Cakes" }}{% endblock %}</title>
     <meta name="description" content="{% block description %}Bespoke, artisanal cakes for every occasion. Order online for delivery.{% endblock %}">
     <meta name="keywords" content="{% block keywords %}cakes, bakery, wedding cakes, birthday cakes, custom cakes{% endblock %}">
+
+    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon-16x16.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/apple-touch-icon.png' %}">
     
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token }}">

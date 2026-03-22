@@ -186,6 +186,7 @@ class CheckoutView(View):
         if payment_method in ['cash', 'cod']:
             order.status = 'confirmed'
             order.save()
+            order.deduct_stock_once()
         
         # Send notifications (async)
         send_order_notifications.delay(str(order.id))
@@ -272,6 +273,7 @@ def mpesa_callback(request):
                 order.mark_paid(mpesa_receipt)
                 order.status = 'confirmed'
                 order.save()
+                order.deduct_stock_once()
                 
                 OrderTracking.objects.create(
                     order=order,

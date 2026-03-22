@@ -70,14 +70,46 @@ class Command(BaseCommand):
 
     def clear_data(self):
         """Clear existing data"""
-        Product.objects.all().delete()
-        Category.objects.all().delete()
-        ProductAttribute.objects.all().delete()
-        ProductAddon.objects.all().delete()
-        Testimonial.objects.all().delete()
-        HeroSection.objects.all().delete()
-        FeaturedCard.objects.all().delete()
-        Page.objects.all().delete()
+        debug_original = settings.DEBUG
+        try:
+            settings.DEBUG = False
+            from django.db import connection
+
+            delete_tables = [
+                'cart_cartitem',
+                'cart_cart',
+                'orders_orderattachment',
+                'orders_ordertracking',
+                'orders_paymenttransaction',
+                'orders_order',
+                'orders_enquiry',
+                'products_productreview',
+                'products_productvariant',
+                'products_productattributemapping_available_options',
+                'products_productattributemapping',
+                'products_product_addons',
+                'products_product_tags',
+                'products_product',
+                'products_productattributeoption',
+                'products_productattribute',
+                'products_productaddon',
+                'products_category',
+                'taggit_taggeditem',
+                'taggit_tag',
+                'core_testimonial',
+                'core_herosection',
+                'core_featuredcard',
+                'core_page',
+            ]
+
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+                existing_tables = {row[0] for row in cursor.fetchall()}
+                for table in delete_tables:
+                    if table in existing_tables:
+                        cursor.execute(f'DELETE FROM "{table}"')
+        finally:
+            settings.DEBUG = debug_original
         self.stdout.write('   ✓ Data cleared')
 
     def create_site_settings(self):
@@ -912,7 +944,7 @@ class Command(BaseCommand):
             
             product, created = Product.objects.update_or_create(
                 slug=product_data['slug'],
-                defaults={**product_data, 'category': category}
+                defaults={**product_data, 'category': category, 'stock_quantity': 100}
             )
             
             # Add attributes
@@ -933,10 +965,10 @@ class Command(BaseCommand):
             
             # Create variants (sizes)
             variants_data = [
-                {'name': 'Small', 'weight': '1kg', 'price_adjustment': Decimal('0.00'), 'is_default': True, 'order': 1},
-                {'name': 'Medium', 'weight': '2kg', 'price_adjustment': Decimal('1500.00'), 'is_default': False, 'order': 2},
-                {'name': 'Large', 'weight': '3kg', 'price_adjustment': Decimal('3000.00'), 'is_default': False, 'order': 3},
-                {'name': 'Extra Large', 'weight': '4kg', 'price_adjustment': Decimal('4500.00'), 'is_default': False, 'order': 4},
+                {'name': 'Small', 'weight': '1kg', 'price_adjustment': Decimal('0.00'), 'stock_quantity': 100, 'is_default': True, 'order': 1},
+                {'name': 'Medium', 'weight': '2kg', 'price_adjustment': Decimal('1500.00'), 'stock_quantity': 100, 'is_default': False, 'order': 2},
+                {'name': 'Large', 'weight': '3kg', 'price_adjustment': Decimal('3000.00'), 'stock_quantity': 100, 'is_default': False, 'order': 3},
+                {'name': 'Extra Large', 'weight': '4kg', 'price_adjustment': Decimal('4500.00'), 'stock_quantity': 100, 'is_default': False, 'order': 4},
             ]
             
             for variant_data in variants_data:

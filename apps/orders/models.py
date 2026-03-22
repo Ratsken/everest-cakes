@@ -1,4 +1,6 @@
 from django.db import models
+from django.db import transaction
+from django.db.models import F
 from django.conf import settings
 from django.utils import timezone
 import uuid
@@ -96,6 +98,7 @@ class Order(models.Model):
     # Notification Status
     email_sent = models.BooleanField(default=False)
     whatsapp_sent = models.BooleanField(default=False)
+    stock_deducted = models.BooleanField(default=False)
     
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
@@ -155,6 +158,46 @@ class Order(models.Model):
     def confirm(self):
         self.status = 'confirmed'
         self.save()
+
+    def deduct_stock_once(self):
+        """Deduct stock for order items exactly once."""
+        if self.stock_deducted:
+            return
+
+        from apps.products.models import Product, ProductVariant
+
+        with transaction.atomic():
+            locked_order = Order.objects.select_for_update().get(pk=self.pk)
+            if locked_order.stock_deducted:
+                return
+
+            touched_product_ids = set()
+
+            for item in locked_order.items:
+                quantity = int(item.get('quantity') or 0)
+                if quantity <= 0:
+                    continue
+
+                product_id = item.get('product_id')
+                variant_id = item.get('variant_id')
+
+                if product_id:
+                    Product.objects.filter(id=product_id).update(stock_quantity=F('stock_quantity') - quantity)
+                    Product.objects.filter(id=product_id, stock_quantity__lt=0).update(stock_quantity=0)
+                    touched_product_ids.add(product_id)
+
+                if variant_id:
+                    ProductVariant.objects.filter(id=variant_id).update(stock_quantity=F('stock_quantity') - quantity)
+                    ProductVariant.objects.filter(id=variant_id, stock_quantity__lt=0).update(stock_quantity=0)
+
+            for product_id in touched_product_ids:
+                product = Product.objects.filter(id=product_id).first()
+                if product and product.stock_quantity <= 0 and product.is_available:
+                    product.is_available = False
+                    product.save(update_fields=['is_available'])
+
+            locked_order.stock_deducted = True
+            locked_order.save(update_fields=['stock_deducted'])
     
     def get_absolute_url(self):
         from django.urls import reverse

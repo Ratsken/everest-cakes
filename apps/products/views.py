@@ -94,7 +94,7 @@ class ProductDetailView(DetailView):
 class CategoryView(ListView):
     """Category page with products"""
     model = Product
-    template_name = 'products/category.html'
+    template_name = 'products/list.html'
     context_object_name = 'products'
     paginate_by = 12
     
@@ -106,6 +106,10 @@ class CategoryView(ListView):
         context = super().get_context_data(**kwargs)
         context['category'] = self.category
         context['categories'] = Category.objects.filter(is_active=True).order_by('order')
+        context['current_category'] = self.category.slug
+        context['current_sort'] = '-created_at'
+        context['min_price'] = ''
+        context['max_price'] = ''
         return context
 
 

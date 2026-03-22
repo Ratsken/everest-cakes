@@ -133,7 +133,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 UNFOLD = {
     "SITE_TITLE": "Everest Cakes",
     "SITE_HEADER": "Everest Cakes Admin",
-    "SITE_ICON": "/static/images/favicon.png",
+    "SITE_ICON": "/static/images/favicon.ico",
     "SHOW_BACK_BUTTON": True,
     "SHOW_HISTORY": True,
     "SHOW_VIEW_ON_SITE": True,

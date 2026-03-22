@@ -1,8 +1,9 @@
+{% load static %}
 <!-- Navbar - Luxury Style -->
 <nav id="navbar" class="fixed w-full z-50 transition-all duration-500 py-6">
     <div class="max-w-7xl mx-auto px-6 lg:px-12 flex justify-between items-center">
         <!-- Left Nav -->
-        <div class="hidden md:flex space-x-8 font-sans text-[11px] uppercase tracking-[0.2em]">
+        <div class="hidden md:flex space-x-8 font-sans text-[18px] uppercase tracking-[0.2em]">
             <a href="{% url 'products:list' %}" class="text-brand-primary hover:text-gold transition-colors">Menu</a>
             <a href="{% url 'core:about' %}" class="text-brand-primary hover:text-gold transition-colors">Our Story</a>
         </div>
@@ -10,16 +11,17 @@
         <!-- Logo -->
         <a href="{% url 'core:home' %}" class="flex flex-col items-center group">
             {% if site_settings.site_logo %}
-            <img src="{{ site_settings.site_logo.url }}" alt="{{ BUSINESS_NAME }}" class="h-10 w-auto">
+            <img src="{{ site_settings.site_logo.url }}" alt="{{ BUSINESS_NAME }}" class="h-24 w-auto">
             {% else %}
-            <span class="font-serif text-2xl lg:text-3xl tracking-tighter text-brand-dark group-hover:text-brand-accent transition-colors">EVEREST CAKES</span>
-            <span class="text-[9px] uppercase tracking-[0.4em] text-gold -mt-1 font-sans">You need it... we bake it</span>
+            <img src="{% static 'images/logo.png' %}" alt="{{ BUSINESS_NAME }}" class="h-24 w-auto" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'; this.nextElementSibling.nextElementSibling.style.display='inline';">
+            {% comment %} <span style="display:none" class="font-serif text-2xl lg:text-3xl tracking-tighter text-brand-dark group-hover:text-brand-accent transition-colors">EVEREST CAKES</span>
+            <span style="display:none" class="text-[9px] uppercase tracking-[0.4em] text-gold -mt-1 font-sans">You need it... we bake it</span> {% endcomment %}
             {% endif %}
         </a>
 
         <!-- Right Nav -->
         <div class="flex items-center space-x-6">
-            <a href="tel:{{ BUSINESS_PHONE }}" class="hidden md:block font-sans text-[11px] uppercase tracking-[0.2em] border-b border-gold pb-1 text-brand-primary hover:text-gold transition-colors">Order Now</a>
+            <a href="tel:{{ BUSINESS_PHONE }}" class="hidden md:block font-sans text-[18px] uppercase tracking-[0.2em] border-b border-gold pb-1 text-brand-primary hover:text-gold transition-colors">Order Now</a>
             
             <!-- Cart -->
             <button onclick="openCart()" class="relative p-2 text-brand-dark hover:text-gold transition-colors">
