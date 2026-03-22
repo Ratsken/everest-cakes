@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Track Order | {{ site_settings.site_name }}{% endblock %}
+{% block title %}Track Order | {{ BUSINESS_NAME }}{% endblock %}
 
 {% block content %}
 <div class="pt-24 pb-16 bg-brand-cream min-h-screen">
@@ -101,7 +101,7 @@
                     <i data-lucide="message-circle" class="w-5 h-5"></i>
                     WhatsApp Us
                 </a>
-                <a href="tel:{{ site_settings.phone_primary }}" class="flex items-center gap-2 text-brand-accent hover:text-gold">
+                <a href="tel:{{ BUSINESS_PHONE }}" class="flex items-center gap-2 text-brand-accent hover:text-gold">
                     <i data-lucide="phone" class="w-5 h-5"></i>
                     Call Us
                 </a>

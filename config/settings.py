@@ -238,10 +238,10 @@ ADMIN_WHATSAPP_NUMBER = config('ADMIN_WHATSAPP_NUMBER', default='')
 
 # Business Settings (from .env)
 BUSINESS_NAME = config('BUSINESS_NAME', default='Everest Cakes')
-BUSINESS_PHONE = config('BUSINESS_PHONE', default='+254700000000')
-BUSINESS_WHATSAPP = config('BUSINESS_WHATSAPP', default='+254700000000')
+BUSINESS_PHONE = config('BUSINESS_PHONE', default='+254713311344')
+BUSINESS_WHATSAPP = config('BUSINESS_WHATSAPP', default='+254713311344')
 BUSINESS_EMAIL = config('BUSINESS_EMAIL', default='hello@everestcakes.co.ke')
-BUSINESS_ADDRESS = config('BUSINESS_ADDRESS', default='Thika, Kenya')
+BUSINESS_ADDRESS = config('BUSINESS_ADDRESS', default='Thika Town, Kenya')
 
 # Delivery Settings
 FREE_DELIVERY_THRESHOLD = config('FREE_DELIVERY_THRESHOLD', default=5000, cast=int)
@@ -250,6 +250,7 @@ DEFAULT_DELIVERY_FEE = config('DEFAULT_DELIVERY_FEE', default=300, cast=int)
 # Social Media URLs
 FACEBOOK_URL = config('FACEBOOK_URL', default='')
 INSTAGRAM_URL = config('INSTAGRAM_URL', default='')
+THREADS_URL = config('THREADS_URL', default='https://www.threads.com/@everest_cakes?xmt=AQF02CZKds1olKwKCNyMuUhtTH3yqBsZeaRMpRugUsgCvrQ')
 TWITTER_URL = config('TWITTER_URL', default='')
 TIKTOK_URL = config('TIKTOK_URL', default='')
 

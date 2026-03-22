@@ -19,6 +19,7 @@ class HomeView(TemplateView):
         
         # Hero sections (animated, controlled from admin)
         context['hero_sections'] = HeroSection.objects.filter(is_active=True).order_by('order')
+        context['primary_hero'] = context['hero_sections'].first()
         
         # Featured cards (animated, controlled from admin)
         context['featured_cards'] = FeaturedCard.objects.filter(
@@ -130,8 +131,9 @@ def search_suggestions(request):
 
 def about(request):
     """About page"""
+    page = Page.objects.filter(slug='about', is_published=True).first()
     testimonials = Testimonial.objects.filter(is_active=True)[:6]
-    return render(request, 'core/about.html', {'testimonials': testimonials})
+    return render(request, 'core/about.html', {'page': page, 'testimonials': testimonials})
 
 
 def contact(request):

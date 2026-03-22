@@ -88,23 +88,24 @@ class Command(BaseCommand):
             pk=1,
             defaults={
                 'site_name': 'Everest Cakes',
-                'site_description': 'Bespoke, artisanal cakes for every occasion in Thika. Wedding cakes, birthday cakes, custom designs. You need it... we bake it.',
+                'site_description': 'We are Everest Cakes, we are all about cakes. Welcome all. Order celebration cakes from Thika Town.',
                 'phone_primary': '+254713311344',
                 'phone_secondary': '+254723780139',
                 'email': 'hello@everestcakes.co.ke',
-                'address': 'Thika Town, Central Business District, Kenya',
+                'address': 'Thika Town, Kenya',
                 'whatsapp_number': '+254713311344',
                 'monday_friday': '8:00 AM - 7:00 PM',
                 'saturday': '8:00 AM - 7:00 PM',
                 'sunday': '10:00 AM - 4:00 PM',
                 'facebook_url': 'https://www.facebook.com/everestcakes',
                 'instagram_url': 'https://www.instagram.com/everest_cakes/',
+                'threads_url': 'https://www.threads.com/@everest_cakes?xmt=AQF02CZKds1olKwKCNyMuUhtTH3yqBsZeaRMpRugUsgCvrQ',
                 'twitter_url': '',
                 'tiktok_url': '',
                 'free_delivery_threshold': Decimal('5000.00'),
                 'delivery_fee': Decimal('300.00'),
-                'meta_description': 'Everest Cakes - Premium artisanal cakes in Thika, Kenya. Wedding cakes, birthday cakes, custom designs. Order online for delivery.',
-                'meta_keywords': 'cakes, bakery, wedding cakes, birthday cakes, custom cakes, Thika, Kenya, Everest Cakes',
+                'meta_description': 'Everest Cakes in Thika Town. Celebration cakes, custom cake orders, and direct phone or WhatsApp ordering.',
+                'meta_keywords': 'Everest Cakes, Thika cakes, custom cakes, birthday cakes, wedding cakes, graduation cakes, cake shop Thika',
             }
         )
         self.stdout.write(f'   ✓ Site settings: {settings.site_name}')
@@ -117,24 +118,24 @@ class Command(BaseCommand):
             {
                 'title': 'About Us',
                 'slug': 'about',
-                'content': '''<h2>Our Story</h2>
-<p>Welcome to Everest Cakes, Thika's premier artisanal bakery. We are passionate about creating exceptional cakes that transform your special moments into unforgettable memories.</p>
+                'content': '''<h2>About Everest Cakes</h2>
+<p>We are Everest Cakes, and we are all about cakes. Welcome all.</p>
 
-<h3>Our Mission</h3>
-<p>At Everest Cakes, we believe every celebration deserves a masterpiece. Our mission is to craft bespoke cakes that not only look stunning but taste absolutely divine. We use only the finest ingredients, sourced locally whenever possible, to ensure every bite is a moment of pure indulgence.</p>
+<h3>Where to Find Us</h3>
+<p>Visit us in Thika Town or place your order by phone or WhatsApp. We serve customers looking for celebration cakes, custom designs, and cakes for everyday milestones.</p>
 
-<h3>Our Expertise</h3>
-<p>With years of experience in the art of cake making, our team of skilled bakers and decorators brings creativity and precision to every creation. From elegant wedding cakes to fun birthday creations, corporate events to intimate celebrations, we handle each order with the same dedication and attention to detail.</p>
+<h3>What We Do</h3>
+<p>We make cakes for birthdays, weddings, graduations, baby showers, anniversaries, and custom celebrations. Our focus is fresh bakes, clean finishing, and dependable service for every order.</p>
 
-<h3>Why Choose Us?</h3>
+<h3>Contact</h3>
 <ul>
-<li><strong>Premium Ingredients:</strong> We use only the freshest, highest-quality ingredients in all our cakes.</li>
-<li><strong>Custom Designs:</strong> Every cake is uniquely crafted to match your vision and theme.</li>
-<li><strong>Timely Delivery:</strong> We ensure your cake arrives fresh and on time for your celebration.</li>
-<li><strong>Affordable Excellence:</strong> Luxury cakes at prices that won't break the bank.</li>
+<li><strong>Phone:</strong> +254713311344</li>
+<li><strong>Alternative Phone:</strong> +254723780139</li>
+<li><strong>Threads:</strong> @everest_cakes</li>
+<li><strong>Location:</strong> Thika Town, Kenya</li>
 </ul>
 
-<p>Visit us in Thika Town or order online for delivery. We're here to make your celebrations sweeter!</p>''',
+<p>Tell us what you need, and we will help you plan the right cake for your occasion.</p>''',
                 'show_in_footer': True,
                 'order': 1,
             },
@@ -952,96 +953,37 @@ class Command(BaseCommand):
     def create_testimonials(self):
         """Create testimonials"""
         self.stdout.write('💬 Creating testimonials...')
-        
-        testimonials = [
-            {
-                'customer_name': 'Mary Wanjiku',
-                'rating': 5,
-                'comment': 'Everest Cakes made my wedding absolutely magical! The 3-tier cake was not only stunning but incredibly delicious. Every guest was raving about it. Thank you for making our special day unforgettable!',
-                'occasion': 'Wedding',
-                'location': 'Thika',
-                'is_featured': True,
-            },
-            {
-                'customer_name': 'James Kamau',
-                'rating': 5,
-                'comment': 'Ordered a Paw Patrol cake for my son\'s 5th birthday. The attention to detail was amazing - he couldn\'t stop smiling! The cake was moist and flavorful. Will definitely order again.',
-                'occasion': 'Birthday',
-                'location': 'Ruiru',
-                'is_featured': True,
-            },
-            {
-                'customer_name': 'Grace Njeri',
-                'rating': 5,
-                'comment': 'The gender reveal cake was perfect! The surprise inside was exactly what we wanted. The team kept the secret well. Highly recommend for anyone planning a gender reveal party.',
-                'occasion': 'Gender Reveal',
-                'location': 'Thika',
-                'is_featured': True,
-            },
-            {
-                'customer_name': 'Peter Mwangi',
-                'rating': 5,
-                'comment': 'We ordered a corporate logo cake for our company\'s 10th anniversary. The logo was perfectly recreated and the cake fed over 50 people. Professional service from start to finish.',
-                'occasion': 'Corporate Event',
-                'location': 'Nairobi',
-                'is_featured': True,
-            },
-            {
-                'customer_name': 'Lydia Muthoni',
-                'rating': 5,
-                'comment': 'My daughter\'s graduation cake was beautiful! They captured her school colors and even added a custom topper. Delivery was on time and the cake was fresh. Thank you Everest Cakes!',
-                'occasion': 'Graduation',
-                'location': 'Juja',
-                'is_featured': True,
-            },
-            {
-                'customer_name': 'Samuel Kariuki',
-                'rating': 5,
-                'comment': 'Ordered cupcakes for my wife\'s baby shower. They were beautifully decorated and absolutely delicious. The vanilla flavor was to die for! Great value for money.',
-                'occasion': 'Baby Shower',
-                'location': 'Thika',
-                'is_featured': True,
-            },
-            {
-                'customer_name': 'Faith Wambui',
-                'rating': 5,
-                'comment': 'My parents\' 25th anniversary cake was a showstopper! Silver accents, elegant design, and the taste was heavenly. The team was very professional and accommodating.',
-                'occasion': 'Anniversary',
-                'location': 'Kiambu',
-                'is_featured': True,
-            },
-            {
-                'customer_name': 'Daniel Ochieng',
-                'rating': 4,
-                'comment': 'Great service and delicious cake! Ordered a number cake for my wife\'s 40th birthday. The design was exactly what I wanted. Minor delay in delivery but overall excellent experience.',
-                'occasion': 'Birthday',
-                'location': 'Thika',
-                'is_featured': False,
-            },
+
+        seeded_names = [
+            'Mary Wanjiku',
+            'James Kamau',
+            'Grace Njeri',
+            'Peter Mwangi',
+            'Lydia Muthoni',
+            'Samuel Kariuki',
+            'Faith Wambui',
+            'Daniel Ochieng',
         ]
-        
-        for test_data in testimonials:
-            testimonial, created = Testimonial.objects.update_or_create(
-                customer_name=test_data['customer_name'],
-                defaults=test_data
-            )
-            stars = '⭐' * test_data['rating']
-            self.stdout.write(f'   ✓ {test_data["customer_name"]}: {stars}')
+        deleted_count, _ = Testimonial.objects.filter(customer_name__in=seeded_names).delete()
+        self.stdout.write(f'   ✓ Removed {deleted_count} seeded testimonial records')
+        self.stdout.write('   ✓ No testimonials are seeded by default. Add verified customer feedback from admin.')
 
     def create_hero_sections(self):
         """Create hero sections"""
         self.stdout.write('🖼️  Creating hero sections...')
+
+        HeroSection.objects.filter(title='Treat yourself to decadent moments.').delete()
         
         hero_data = [
             {
-                'title': 'Treat yourself to decadent moments.',
-                'subtitle': 'Premium Bakery Thika',
-                'description': 'We take pride in our commitment to using only the freshest ingredients and making our desserts from scratch.',
+                'title': 'Everest Cakes for every celebration.',
+                'subtitle': 'Thika Town Cake Studio',
+                'description': 'Order custom cakes, celebration cakes, and event cakes directly from Everest Cakes in Thika Town.',
                 'background_type': 'image',
                 'title_animation': 'fade',
                 'content_animation': 'slide',
                 'cta_text': 'Explore Menu',
-                'cta_link': '/shop/',
+                'cta_link': '/products/',
                 'secondary_cta_text': 'Contact Us',
                 'secondary_cta_link': '/contact/',
                 'is_active': True,
@@ -1059,30 +1001,36 @@ class Command(BaseCommand):
     def create_featured_cards(self):
         """Create featured cards"""
         self.stdout.write('🃏 Creating featured cards...')
+
+        FeaturedCard.objects.filter(title__in=[
+            'Personal Customizations',
+            'Unparalleled Expertise',
+            'Timely Delivery',
+        ]).delete()
         
         cards = [
             {
-                'title': 'Personal Customizations',
-                'subtitle': 'Made Your Way',
-                'description': 'Every cake is a reflection of your unique style. We offer extensive options for any occasion.',
+                'title': 'Custom Orders',
+                'subtitle': 'Made For Your Event',
+                'description': 'Share your preferred size, flavor, colors, and message and we will guide you to the right cake.',
                 'icon': 'palette',
                 'animation_type': 'hover-lift',
                 'show_on_homepage': True,
                 'order': 1,
             },
             {
-                'title': 'Unparalleled Expertise',
-                'subtitle': 'Years of Experience',
-                'description': 'Years of expertise in creating delectable cakes with artistic precision and world-class flavor.',
+                'title': 'Celebration Cakes',
+                'subtitle': 'Birthdays To Weddings',
+                'description': 'We bake for birthdays, graduations, baby showers, anniversaries, weddings, and other special occasions.',
                 'icon': 'award',
                 'animation_type': 'hover-lift',
                 'show_on_homepage': True,
                 'order': 2,
             },
             {
-                'title': 'Timely Delivery',
-                'subtitle': 'Fresh to Your Door',
-                'description': 'We value your time. Our dedicated team ensures fresh delivery, right to your doorstep in Thika.',
+                'title': 'Direct Ordering',
+                'subtitle': 'Call Or WhatsApp',
+                'description': 'Reach us quickly by phone or WhatsApp to confirm availability, timing, pickup, or delivery.',
                 'icon': 'truck',
                 'animation_type': 'hover-lift',
                 'show_on_homepage': True,

@@ -65,6 +65,7 @@ class SiteSetting(models.Model):
     # Social Links
     facebook_url = models.URLField(blank=True)
     instagram_url = models.URLField(blank=True)
+    threads_url = models.URLField(blank=True)
     twitter_url = models.URLField(blank=True)
     tiktok_url = models.URLField(blank=True)
     

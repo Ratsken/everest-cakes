@@ -54,7 +54,7 @@ class SiteSettingAdmin(ModelAdmin):
             'fields': ('monday_friday', 'saturday', 'sunday')
         }),
         ('Social Media', {
-            'fields': ('facebook_url', 'instagram_url', 'twitter_url', 'tiktok_url')
+            'fields': ('facebook_url', 'instagram_url', 'threads_url', 'twitter_url', 'tiktok_url')
         }),
         ('Delivery Settings', {
             'fields': ('free_delivery_threshold', 'delivery_fee')

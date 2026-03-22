@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ site_settings.site_name|default:"Everest Cakes" }} | Luxury Artisanal Bakery Thika{% endblock %}
+{% block title %}{{ BUSINESS_NAME }} | Luxury Artisanal Bakery Thika{% endblock %}
 
-{% block description %}{{ site_settings.site_description|default:"Bespoke, artisanal cakes for every occasion in Thika. Wedding cakes, birthday cakes, custom designs. You need it... we bake it." }}{% endblock %}
+{% block description %}{{ SITE_DESCRIPTION }}{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
@@ -12,48 +12,44 @@
             <div class="reveal">
                 <div class="flex items-center space-x-4 mb-6">
                     <span class="w-12 h-[1px] bg-gold"></span>
-                    <span class="text-gold uppercase tracking-[0.3em] text-[10px] font-sans">Premium Bakery Thika</span>
+                    <span class="text-gold uppercase tracking-[0.3em] text-[10px] font-sans">{{ primary_hero.subtitle|default:"Everest Cakes Thika Town" }}</span>
                 </div>
                 <h1 class="text-5xl lg:text-[6rem] font-serif leading-[0.85] text-brand-dark mb-8">
-                    Treat yourself to<br> 
-                    <span class="italic font-light text-brand-accent">decadent</span> moments.
+                    {{ primary_hero.title|default:BUSINESS_NAME }}
                 </h1>
                 <p class="text-gray-600 font-sans font-light max-w-md mb-10 text-lg leading-relaxed">
-                    We take pride in our commitment to using only the freshest ingredients and making our desserts from scratch.
+                    {{ primary_hero.description|default:SITE_DESCRIPTION }}
                 </p>
                 <div class="flex items-center space-x-8">
-                    <a href="{% url 'products:list' %}" class="btn-primary px-10 py-5 font-sans text-xs uppercase tracking-widest transform hover:-translate-y-1 transition-all">
-                        Explore Menu
+                    <a href="{% if primary_hero and primary_hero.cta_link %}{{ primary_hero.cta_link }}{% else %}{% url 'products:list' %}{% endif %}" class="btn-primary px-10 py-5 font-sans text-xs uppercase tracking-widest transform hover:-translate-y-1 transition-all">
+                        {{ primary_hero.cta_text|default:"Explore Menu" }}
                     </a>
-                    <div class="flex -space-x-3">
-                        <img src="https://i.pravatar.cc/100?u=1" class="w-10 h-10 rounded-full border-2 border-cream">
-                        <img src="https://i.pravatar.cc/100?u=2" class="w-10 h-10 rounded-full border-2 border-cream">
-                        <img src="https://i.pravatar.cc/100?u=3" class="w-10 h-10 rounded-full border-2 border-cream">
-                        <div class="w-10 h-10 rounded-full bg-gold flex items-center justify-center text-[10px] text-white font-bold border-2 border-cream">+800</div>
-                    </div>
+                    <a href="https://wa.me/{{ BUSINESS_WHATSAPP|slice:'1:' }}" class="rounded-full bg-white/80 backdrop-blur px-5 py-3 border border-brand-primary/10 hover:border-gold transition-colors">
+                        <p class="text-[10px] uppercase tracking-[0.25em] text-gray-500 font-sans">Order Fast</p>
+                        <p class="text-sm text-brand-dark font-medium font-sans">WhatsApp Us</p>
+                    </a>
                 </div>
             </div>
             
             <div class="relative reveal delay-200">
                 <div class="arch-image overflow-hidden aspect-[4/5] shadow-2xl relative">
-                    {% if hero_sections and hero_sections.first.image %}
-                    <img src="{{ hero_sections.first.image.url }}" alt="Decadent Cake" class="w-full h-full object-cover transform transition duration-1000 hover:scale-110">
+                    {% if primary_hero and primary_hero.background_image %}
+                    <img src="{{ primary_hero.background_image.url }}" alt="{{ primary_hero.title }}" class="w-full h-full object-cover transform transition duration-1000 hover:scale-110">
                     {% else %}
                     <img src="https://images.unsplash.com/photo-1535141192574-5d4897c825a0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Decadent Cake" class="w-full h-full object-cover transform transition duration-1000 hover:scale-110">
                     {% endif %}
                 </div>
                 <!-- Floating Price Badge -->
                 <div class="absolute -bottom-6 -left-6 bg-white p-6 shadow-xl rounded-lg max-w-[180px]">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-[10px] uppercase tracking-widest text-gray-400">Signature</span>
-                        <div class="flex text-gold">
-                            <i data-lucide="star" class="w-3 h-3 fill-current"></i>
-                            <i data-lucide="star" class="w-3 h-3 fill-current"></i>
-                            <i data-lucide="star" class="w-3 h-3 fill-current"></i>
-                        </div>
-                    </div>
-                    <p class="font-serif text-lg text-brand-dark leading-tight">Velvet Cream Cake</p>
-                    <p class="text-brand-accent font-sans font-bold text-sm mt-2">Ksh 3,500</p>
+                    {% if featured_products %}
+                    <span class="text-[10px] uppercase tracking-widest text-gray-400">Featured Cake</span>
+                    <p class="font-serif text-lg text-brand-dark leading-tight mt-2">{{ featured_products.0.name }}</p>
+                    <p class="text-brand-accent font-sans font-bold text-sm mt-2">Ksh {{ featured_products.0.current_price }}</p>
+                    {% else %}
+                    <span class="text-[10px] uppercase tracking-widest text-gray-400">Contact</span>
+                    <p class="font-serif text-lg text-brand-dark leading-tight mt-2">Order by phone or WhatsApp</p>
+                    <p class="text-brand-accent font-sans font-bold text-sm mt-2">{{ BUSINESS_PHONE }}</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -66,29 +62,23 @@
         <div class="text-center mb-20 reveal">
             <h2 class="font-serif text-4xl lg:text-5xl text-brand-dark">Why Choose <span class="italic">Us</span></h2>
         </div>
+        {% if featured_cards %}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
-            <div class="text-center p-8 bg-white/50 backdrop-blur rounded-2xl reveal delay-100">
+            {% for card in featured_cards|slice:":3" %}
+            <div class="text-center p-8 bg-white/50 backdrop-blur rounded-2xl reveal delay-{{ forloop.counter }}00">
                 <div class="w-16 h-16 bg-brand-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <i data-lucide="palette" class="w-8 h-8 text-brand-primary"></i>
+                    <i data-lucide="{{ card.icon|default:'sparkles' }}" class="w-8 h-8 text-brand-primary"></i>
                 </div>
-                <h3 class="font-serif text-2xl mb-4">Personal Customizations</h3>
-                <p class="text-gray-500 font-sans font-light text-sm leading-relaxed">Every cake is a reflection of your unique style. We offer extensive options for any occasion.</p>
+                <h3 class="font-serif text-2xl mb-4">{{ card.title }}</h3>
+                <p class="text-gray-500 font-sans font-light text-sm leading-relaxed">{{ card.description }}</p>
             </div>
-            <div class="text-center p-8 bg-white/50 backdrop-blur rounded-2xl reveal delay-200">
-                <div class="w-16 h-16 bg-brand-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <i data-lucide="award" class="w-8 h-8 text-brand-primary"></i>
-                </div>
-                <h3 class="font-serif text-2xl mb-4">Unparalleled Expertise</h3>
-                <p class="text-gray-500 font-sans font-light text-sm leading-relaxed">Years of expertise in creating delectable cakes with artistic precision and world-class flavor.</p>
-            </div>
-            <div class="text-center p-8 bg-white/50 backdrop-blur rounded-2xl reveal delay-300">
-                <div class="w-16 h-16 bg-brand-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <i data-lucide="truck" class="w-8 h-8 text-brand-primary"></i>
-                </div>
-                <h3 class="font-serif text-2xl mb-4">Timely Delivery</h3>
-                <p class="text-gray-500 font-sans font-light text-sm leading-relaxed">We value your time. Our dedicated team ensures fresh delivery, right to your doorstep in Thika.</p>
-            </div>
+            {% endfor %}
         </div>
+        {% else %}
+        <div class="max-w-2xl mx-auto text-center text-gray-500 font-sans">
+            Homepage highlights are managed from the admin panel and will appear here once they are configured.
+        </div>
+        {% endif %}
     </div>
 </section>
 
@@ -123,78 +113,44 @@
             {% endfor %}
         </div>
         {% else %}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div class="category-card rounded-2xl overflow-hidden reveal delay-100">
-                <div class="aspect-[3/4] relative">
-                    <img src="https://images.unsplash.com/photo-1535254973040-607b474cb50d?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-gradient-to-t from-brand-dark/80 to-transparent flex flex-col justify-end p-8">
-                        <h4 class="text-white font-serif text-2xl mb-2">Wedding Cakes</h4>
-                        <p class="text-white/70 text-xs font-sans tracking-widest uppercase">Bespoke Elegance</p>
-                    </div>
-                </div>
-            </div>
-            <div class="category-card rounded-2xl overflow-hidden mt-8 reveal delay-200">
-                <div class="aspect-[3/4] relative">
-                    <img src="https://images.unsplash.com/photo-1558301211-0d8c8ddee6ec?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-gradient-to-t from-brand-dark/80 to-transparent flex flex-col justify-end p-8">
-                        <h4 class="text-white font-serif text-2xl mb-2">Birthday Cakes</h4>
-                        <p class="text-white/70 text-xs font-sans tracking-widest uppercase">Vibrant & Fun</p>
-                    </div>
-                </div>
-            </div>
-            <div class="category-card rounded-2xl overflow-hidden reveal delay-300">
-                <div class="aspect-[3/4] relative">
-                    <img src="https://images.unsplash.com/photo-1519340333755-56e9c1d04579?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-gradient-to-t from-brand-dark/80 to-transparent flex flex-col justify-end p-8">
-                        <h4 class="text-white font-serif text-2xl mb-2">Pastry Boxes</h4>
-                        <p class="text-white/70 text-xs font-sans tracking-widest uppercase">Daily Delights</p>
-                    </div>
-                </div>
-            </div>
-            <div class="category-card rounded-2xl overflow-hidden mt-8 reveal delay-400">
-                <div class="aspect-[3/4] relative">
-                    <img src="https://images.unsplash.com/photo-1621303837174-89787a7d4729?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-gradient-to-t from-brand-dark/80 to-transparent flex flex-col justify-end p-8">
-                        <h4 class="text-white font-serif text-2xl mb-2">Corporate Events</h4>
-                        <p class="text-white/70 text-xs font-sans tracking-widest uppercase">Professional & Grand</p>
-                    </div>
-                </div>
-            </div>
+        <div class="rounded-3xl border border-brand-primary/10 bg-brand-cream p-10 text-center reveal">
+            <h4 class="text-2xl font-serif text-brand-dark mb-3">Categories will appear here once they are added in the database.</h4>
+            <p class="text-gray-500 font-sans max-w-2xl mx-auto">The homepage no longer falls back to hardcoded category cards, so visitors only see real catalog data.</p>
         </div>
         {% endif %}
     </div>
 </section>
 
-<!-- Pricing Section -->
+<!-- Ordering Section -->
 <section class="py-24 bg-brand-dark text-cream overflow-hidden">
     <div class="max-w-7xl mx-auto px-6 lg:px-12">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-20">
             <div class="reveal">
-                <h3 class="font-serif text-5xl mb-12">Standard Sizes <br>& <span class="italic text-gold">Pricing</span></h3>
+                <h3 class="font-serif text-5xl mb-12">How To <br><span class="italic text-gold">Order</span></h3>
                 <div class="space-y-8">
                     <div class="flex justify-between items-center border-b border-white/10 pb-4">
                         <div>
-                            <h4 class="font-serif text-2xl">The Mini Celebration</h4>
-                            <p class="text-xs text-gray-400 font-sans tracking-widest uppercase mt-1">1kg • Serves 4-6</p>
+                            <h4 class="font-serif text-2xl">Choose Your Cake</h4>
+                            <p class="text-xs text-gray-400 font-sans tracking-widest uppercase mt-1">Browse categories and featured cakes</p>
                         </div>
-                        <span class="text-gold font-sans text-lg">Ksh 2,500</span>
+                        <span class="text-gold font-sans text-lg">Step 1</span>
                     </div>
                     <div class="flex justify-between items-center border-b border-white/10 pb-4">
                         <div>
-                            <h4 class="font-serif text-2xl">The Family Classic</h4>
-                            <p class="text-xs text-gray-400 font-sans tracking-widest uppercase mt-1">2kg • Serves 10-12</p>
+                            <h4 class="font-serif text-2xl">Share Your Details</h4>
+                            <p class="text-xs text-gray-400 font-sans tracking-widest uppercase mt-1">Tell us the size, flavor, and event date</p>
                         </div>
-                        <span class="text-gold font-sans text-lg">Ksh 4,500</span>
+                        <span class="text-gold font-sans text-lg">Step 2</span>
                     </div>
                     <div class="flex justify-between items-center border-b border-white/10 pb-4">
                         <div>
-                            <h4 class="font-serif text-2xl">Grand Occasion</h4>
-                            <p class="text-xs text-gray-400 font-sans tracking-widest uppercase mt-1">3kg+ • Custom tiers</p>
+                            <h4 class="font-serif text-2xl">Confirm Pickup or Delivery</h4>
+                            <p class="text-xs text-gray-400 font-sans tracking-widest uppercase mt-1">We will guide you on timing and fulfilment</p>
                         </div>
-                        <span class="text-gold font-sans text-lg">From Ksh 6,500</span>
+                        <span class="text-gold font-sans text-lg">Step 3</span>
                     </div>
                 </div>
-                <p class="mt-12 text-gray-400 text-sm italic font-sans">*Prices may vary based on flavor complexity and intricate decor.</p>
+                <p class="mt-12 text-gray-400 text-sm italic font-sans">Final pricing depends on cake size, design complexity, and custom extras.</p>
             </div>
             <div class="relative reveal delay-200">
                 {% if featured_products %}
@@ -227,8 +183,8 @@
 <section class="py-24 bg-cream">
     <div class="max-w-7xl mx-auto px-6 lg:px-12">
         <div class="text-center mb-16 reveal">
-            <h2 class="font-serif text-4xl lg:text-5xl text-brand-dark">What Our Customers <span class="italic text-brand-accent">Say</span></h2>
-            <p class="text-gray-500 mt-4 font-sans">Real stories from real customers who celebrated their special moments with us.</p>
+            <h2 class="font-serif text-4xl lg:text-5xl text-brand-dark">Customer <span class="italic text-brand-accent">Feedback</span></h2>
+            <p class="text-gray-500 mt-4 font-sans">Published feedback shared with Everest Cakes.</p>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -275,13 +231,17 @@
                     <h4 class="font-serif text-2xl mb-4">Direct Calls</h4>
                     <div class="space-y-2 font-sans text-lg text-brand-dark">
                         <a href="tel:{{ BUSINESS_PHONE }}" class="block hover:text-gold transition-colors">{{ BUSINESS_PHONE }}</a>
+                        {% if BUSINESS_PHONE_SECONDARY %}
+                        <a href="tel:{{ BUSINESS_PHONE_SECONDARY }}" class="block hover:text-gold transition-colors">{{ BUSINESS_PHONE_SECONDARY }}</a>
+                        {% endif %}
                     </div>
                 </div>
                 <div class="p-10 border border-brand-primary/10 rounded-3xl bg-white shadow-sm hover:shadow-xl transition-all">
                     <h4 class="font-serif text-2xl mb-4">Business Hours</h4>
                     <div class="space-y-2 font-sans text-sm text-gray-500 tracking-wide">
-                        <p>MON - SAT: 8:00 AM - 7:00 PM</p>
-                        <p>SUN: 10:00 AM - 4:00 PM</p>
+                        <p>MON - FRI: {{ site_settings.monday_friday|default:"8:00 AM - 7:00 PM" }}</p>
+                        <p>SAT: {{ site_settings.saturday|default:"8:00 AM - 7:00 PM" }}</p>
+                        <p>SUN: {{ site_settings.sunday|default:"10:00 AM - 4:00 PM" }}</p>
                     </div>
                 </div>
             </div>

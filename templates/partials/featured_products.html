@@ -18,36 +18,9 @@
             {% endfor %}
         </div>
         {% else %}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- Placeholder products when no featured products exist -->
-            <div class="bg-brand-cream rounded-2xl p-6 text-center">
-                <div class="aspect-square bg-white rounded-xl mb-4 flex items-center justify-center">
-                    <i data-lucide="cake" class="w-16 h-16 text-gray-300"></i>
-                </div>
-                <h3 class="font-serif font-semibold text-charcoal">Wedding Cakes</h3>
-                <p class="text-sm text-gray-500 mt-1">Elegant designs</p>
-            </div>
-            <div class="bg-brand-cream rounded-2xl p-6 text-center">
-                <div class="aspect-square bg-white rounded-xl mb-4 flex items-center justify-center">
-                    <i data-lucide="cake" class="w-16 h-16 text-gray-300"></i>
-                </div>
-                <h3 class="font-serif font-semibold text-charcoal">Birthday Cakes</h3>
-                <p class="text-sm text-gray-500 mt-1">Fun & festive</p>
-            </div>
-            <div class="bg-brand-cream rounded-2xl p-6 text-center">
-                <div class="aspect-square bg-white rounded-xl mb-4 flex items-center justify-center">
-                    <i data-lucide="cake" class="w-16 h-16 text-gray-300"></i>
-                </div>
-                <h3 class="font-serif font-semibold text-charcoal">Custom Cakes</h3>
-                <p class="text-sm text-gray-500 mt-1">Your vision</p>
-            </div>
-            <div class="bg-brand-cream rounded-2xl p-6 text-center">
-                <div class="aspect-square bg-white rounded-xl mb-4 flex items-center justify-center">
-                    <i data-lucide="cake" class="w-16 h-16 text-gray-300"></i>
-                </div>
-                <h3 class="font-serif font-semibold text-charcoal">Cupcakes</h3>
-                <p class="text-sm text-gray-500 mt-1">Perfect portions</p>
-            </div>
+        <div class="rounded-2xl border border-brand-accent/10 bg-brand-cream p-8 text-center">
+            <h3 class="font-serif text-2xl text-charcoal">No featured cakes yet</h3>
+            <p class="text-sm text-gray-500 mt-2">Featured products now come strictly from the database so this area stays accurate.</p>
         </div>
         {% endif %}
     </div>

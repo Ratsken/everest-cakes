@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
 
-{% block title %}About Us | {{ site_settings.site_name }}{% endblock %}
+{% block title %}About Us | {{ BUSINESS_NAME }}{% endblock %}
 
 {% block content %}
 <div class="pt-24 pb-16 bg-brand-cream min-h-screen">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Hero -->
         <div class="text-center mb-16">
-            <h1 class="text-4xl md:text-5xl font-serif font-bold text-charcoal mb-4">Our Story</h1>
+            <h1 class="text-4xl md:text-5xl font-serif font-bold text-charcoal mb-4">{{ page.title|default:"About Everest Cakes" }}</h1>
             <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-                From a small kitchen in Thika to your special celebrations - baking dreams into reality since 2018.
+                {{ SITE_DESCRIPTION }}
             </p>
         </div>
         
@@ -20,16 +20,15 @@
                      alt="Baker at work" class="rounded-2xl shadow-lg">
             </div>
             <div>
-                <h2 class="text-3xl font-serif font-bold text-charcoal mb-4">The Beginning</h2>
-                <p class="text-gray-600 mb-4">
-                    Everest Cakes was born from a simple passion - the joy of creating something beautiful that brings happiness to others. What started as baking birthday cakes for family and friends in our small kitchen in Thika has grown into a beloved bakery serving customers across Kenya.
-                </p>
-                <p class="text-gray-600 mb-4">
-                    Our founder, inspired by the majestic Mount Kenya visible from Thika, named the bakery "Everest Cakes" - symbolizing our commitment to reaching new heights in cake artistry and customer satisfaction.
-                </p>
-                <p class="text-gray-600">
-                    Every cake we create tells a story - your story. Whether it's a wedding, birthday, anniversary, or any special moment, we pour our heart and skill into making it memorable.
-                </p>
+                <div class="prose prose-lg max-w-none text-gray-600 prose-headings:font-serif prose-headings:text-charcoal prose-strong:text-charcoal prose-a:text-brand-accent">
+                    {% if page %}
+                    {{ page.content|safe }}
+                    {% else %}
+                    <h2>About Everest Cakes</h2>
+                    <p>We are Everest Cakes, and we are all about cakes. Visit us in Thika Town for celebration cakes, custom orders, and everyday sweet moments.</p>
+                    <p>Whether you need a birthday cake, wedding cake, graduation cake, or a custom design, our focus is simple: fresh bakes, clean presentation, and dependable service.</p>
+                    {% endif %}
+                </div>
             </div>
         </div>
         
