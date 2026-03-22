@@ -21,6 +21,13 @@
 
         <!-- Right Nav -->
         <div class="flex items-center space-x-6">
+            {% if user.is_authenticated %}
+            <a href="{% url 'account_email' %}" class="hidden md:block font-sans text-sm uppercase tracking-[0.18em] text-brand-primary hover:text-gold transition-colors">Account</a>
+            <a href="{% url 'account_logout' %}" class="hidden md:block font-sans text-sm uppercase tracking-[0.18em] text-brand-primary hover:text-gold transition-colors">Logout</a>
+            {% else %}
+            <button type="button" onclick="openAuthModal('login')" class="hidden md:block font-sans text-sm uppercase tracking-[0.18em] text-brand-primary hover:text-gold transition-colors">Login</button>
+            <button type="button" onclick="openAuthModal('signup')" class="hidden md:block font-sans text-sm uppercase tracking-[0.18em] text-brand-primary hover:text-gold transition-colors">Register</button>
+            {% endif %}
             <a href="{% url 'products:list' %}" class="hidden md:block font-sans text-[18px] uppercase tracking-[0.2em] border-b border-gold pb-1 text-brand-primary hover:text-gold transition-colors">Order Now</a>
             
             <!-- Cart -->

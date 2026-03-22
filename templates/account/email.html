@@ -1,0 +1,23 @@
+{% extends 'account/base_manage.html' %}
+
+{% block title %}Manage Email | {{ BUSINESS_NAME }}{% endblock %}
+
+{% block auth_manage_content %}
+<h1 class="text-3xl font-serif font-bold text-brand-dark mb-2">Email Addresses</h1>
+<p class="text-sm text-gray-600 mb-6">Manage your account email addresses.</p>
+
+{% if user.email %}
+<div class="mb-4 rounded-lg border border-gold/20 bg-cream-dark px-4 py-3 text-sm text-brand-dark">
+    Primary email: <strong>{{ user.email }}</strong>
+</div>
+{% endif %}
+
+<form method="post" action="{% url 'account_email' %}" class="space-y-4">
+    {% csrf_token %}
+    <div>
+        <label class="block text-sm font-medium mb-1 text-brand-dark">Add another email</label>
+        <input type="email" name="email" class="w-full px-4 py-2.5 rounded-lg border border-gold/30 bg-white input-focus" placeholder="you@example.com">
+    </div>
+    <button type="submit" name="action_add" class="w-full sm:w-auto px-5 py-2.5 rounded-lg btn-primary font-medium">Add Email</button>
+</form>
+{% endblock %}

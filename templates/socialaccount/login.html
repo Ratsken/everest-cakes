@@ -1,0 +1,12 @@
+{% extends 'account/base_entrance.html' %}
+
+{% block title %}Social Login | {{ BUSINESS_NAME }}{% endblock %}
+
+{% block auth_content %}
+<h1 class="text-3xl font-serif font-bold text-brand-dark mb-2">Continue with Social Account</h1>
+<p class="text-sm text-gray-600 mb-6">Complete authentication to continue.</p>
+<form method="post" class="space-y-4">
+    {% csrf_token %}
+    <button type="submit" class="w-full py-2.5 rounded-lg btn-primary font-medium">Continue</button>
+</form>
+{% endblock %}

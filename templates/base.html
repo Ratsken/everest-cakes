@@ -195,9 +195,71 @@
                 <a href="{% url 'products:list' %}" class="block text-white text-lg py-2" onclick="toggleMenu()">Shop</a>
                 <a href="{% url 'orders:track' %}" class="block text-white text-lg py-2" onclick="toggleMenu()">Track Order</a>
                 <a href="{% url 'core:contact' %}" class="block text-white text-lg py-2" onclick="toggleMenu()">Contact</a>
+                {% if user.is_authenticated %}
+                <a href="{% url 'account_email' %}" class="block text-white text-lg py-2" onclick="toggleMenu()">Account</a>
+                <a href="{% url 'account_logout' %}" class="block text-white text-lg py-2" onclick="toggleMenu()">Logout</a>
+                {% else %}
+                <button type="button" onclick="toggleMenu();openAuthModal('login')" class="block text-white text-lg py-2 text-left w-full">Login</button>
+                <button type="button" onclick="toggleMenu();openAuthModal('signup')" class="block text-white text-lg py-2 text-left w-full">Register</button>
+                {% endif %}
             </nav>
         </div>
     </div>
+
+    {% if not user.is_authenticated %}
+    <div id="auth-modal" class="fixed inset-0 z-[70] hidden" aria-hidden="true">
+        <div class="absolute inset-0 bg-brand-dark/70" onclick="closeAuthModal()"></div>
+        <div class="relative min-h-full flex items-center justify-center p-4">
+            <div class="w-full max-w-md rounded-2xl bg-cream shadow-2xl border border-gold/20 overflow-hidden">
+                <div class="flex items-center justify-between px-5 py-4 border-b border-gold/20 bg-white/70">
+                    <h3 class="text-2xl font-serif font-semibold text-brand-dark">Welcome</h3>
+                    <button type="button" onclick="closeAuthModal()" class="text-brand-dark/70 hover:text-brand-dark">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <div class="p-5">
+                    <div class="grid grid-cols-2 gap-2 mb-5 bg-brand-dark/5 p-1 rounded-lg">
+                        <button id="auth-tab-login" type="button" onclick="switchAuthTab('login')" class="py-2 rounded-md text-sm font-medium bg-brand-dark text-white">Login</button>
+                        <button id="auth-tab-signup" type="button" onclick="switchAuthTab('signup')" class="py-2 rounded-md text-sm font-medium text-brand-dark">Register</button>
+                    </div>
+
+                    <form id="auth-form-login" method="post" action="{% url 'account_login' %}" class="space-y-3">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <div>
+                            <label class="block text-sm font-medium mb-1 text-brand-dark">Email</label>
+                            <input type="email" name="login" required class="w-full px-4 py-2.5 rounded-lg border border-gold/30 bg-white input-focus" placeholder="you@example.com">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1 text-brand-dark">Password</label>
+                            <input type="password" name="password" required class="w-full px-4 py-2.5 rounded-lg border border-gold/30 bg-white input-focus" placeholder="••••••••">
+                        </div>
+                        <button type="submit" class="w-full py-2.5 rounded-lg btn-primary font-medium">Login</button>
+                        <a href="{% url 'account_reset_password' %}" class="block text-center text-sm text-brand-accent hover:text-gold">Forgot password?</a>
+                    </form>
+
+                    <form id="auth-form-signup" method="post" action="{% url 'account_signup' %}" class="space-y-3 hidden">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <div>
+                            <label class="block text-sm font-medium mb-1 text-brand-dark">Email</label>
+                            <input type="email" name="email" required class="w-full px-4 py-2.5 rounded-lg border border-gold/30 bg-white input-focus" placeholder="you@example.com">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1 text-brand-dark">Password</label>
+                            <input type="password" name="password1" required class="w-full px-4 py-2.5 rounded-lg border border-gold/30 bg-white input-focus" placeholder="Create password">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1 text-brand-dark">Confirm Password</label>
+                            <input type="password" name="password2" required class="w-full px-4 py-2.5 rounded-lg border border-gold/30 bg-white input-focus" placeholder="Repeat password">
+                        </div>
+                        <button type="submit" class="w-full py-2.5 rounded-lg btn-primary font-medium">Create account</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
     
     <script>
         // Icons
@@ -242,6 +304,52 @@
         function toggleMenu() {
             document.getElementById('mobile-menu').classList.toggle('-translate-x-full');
         }
+
+        function openAuthModal(tab = 'login') {
+            const modal = document.getElementById('auth-modal');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+            switchAuthTab(tab);
+            lucide.createIcons();
+        }
+
+        function closeAuthModal() {
+            const modal = document.getElementById('auth-modal');
+            if (!modal) return;
+            modal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        function switchAuthTab(tab) {
+            const loginTab = document.getElementById('auth-tab-login');
+            const signupTab = document.getElementById('auth-tab-signup');
+            const loginForm = document.getElementById('auth-form-login');
+            const signupForm = document.getElementById('auth-form-signup');
+            if (!loginTab || !signupTab || !loginForm || !signupForm) return;
+
+            if (tab === 'signup') {
+                signupForm.classList.remove('hidden');
+                loginForm.classList.add('hidden');
+                signupTab.classList.add('bg-brand-dark', 'text-white');
+                signupTab.classList.remove('text-brand-dark');
+                loginTab.classList.remove('bg-brand-dark', 'text-white');
+                loginTab.classList.add('text-brand-dark');
+            } else {
+                loginForm.classList.remove('hidden');
+                signupForm.classList.add('hidden');
+                loginTab.classList.add('bg-brand-dark', 'text-white');
+                loginTab.classList.remove('text-brand-dark');
+                signupTab.classList.remove('bg-brand-dark', 'text-white');
+                signupTab.classList.add('text-brand-dark');
+            }
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closeAuthModal();
+            }
+        });
         
         // Cart sidebar
         function openCart() { document.getElementById('cart-sidebar').classList.add('cart-open'); }

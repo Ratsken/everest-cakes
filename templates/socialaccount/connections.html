@@ -1,0 +1,18 @@
+{% extends 'account/base_manage.html' %}
+
+{% block title %}Social Connections | {{ BUSINESS_NAME }}{% endblock %}
+
+{% block auth_manage_content %}
+<h1 class="text-3xl font-serif font-bold text-brand-dark mb-2">Social Connections</h1>
+<p class="text-sm text-gray-600 mb-6">Manage connected social accounts.</p>
+
+{% if form.accounts %}
+<ul class="space-y-3 mb-4">
+    {% for base_account in form.accounts %}
+    <li class="rounded-lg border border-gold/20 px-4 py-3 bg-cream-dark text-brand-dark">{{ base_account }}</li>
+    {% endfor %}
+</ul>
+{% else %}
+<p class="text-gray-600">No social accounts connected yet.</p>
+{% endif %}
+{% endblock %}

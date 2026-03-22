@@ -1,0 +1,13 @@
+{% extends 'account/base_entrance.html' %}
+
+{% block title %}Confirm Email | {{ BUSINESS_NAME }}{% endblock %}
+
+{% block auth_content %}
+<h1 class="text-3xl font-serif font-bold text-brand-dark mb-2">Confirm Email</h1>
+<p class="text-sm text-gray-600 mb-6">Confirm your email address to finish setup.</p>
+
+<form method="post" class="space-y-4">
+    {% csrf_token %}
+    <button type="submit" class="w-full py-2.5 rounded-lg btn-primary font-medium">Confirm Email</button>
+</form>
+{% endblock %}

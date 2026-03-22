@@ -1,0 +1,28 @@
+{% extends 'account/base_entrance.html' %}
+
+{% block title %}Register | {{ BUSINESS_NAME }}{% endblock %}
+
+{% block auth_content %}
+<h1 class="text-3xl font-serif font-bold text-brand-dark mb-2">Create Account</h1>
+<p class="text-sm text-gray-600 mb-6">Register to track and manage your cake orders.</p>
+
+<form method="post" action="{% url 'account_signup' %}" class="space-y-4">
+    {% csrf_token %}
+    {{ redirect_field }}
+    <div>
+        <label class="block text-sm font-medium mb-1 text-brand-dark">Email</label>
+        <input type="email" name="email" required class="w-full px-4 py-2.5 rounded-lg border border-gold/30 bg-white input-focus">
+    </div>
+    <div>
+        <label class="block text-sm font-medium mb-1 text-brand-dark">Password</label>
+        <input type="password" name="password1" required class="w-full px-4 py-2.5 rounded-lg border border-gold/30 bg-white input-focus">
+    </div>
+    <div>
+        <label class="block text-sm font-medium mb-1 text-brand-dark">Confirm Password</label>
+        <input type="password" name="password2" required class="w-full px-4 py-2.5 rounded-lg border border-gold/30 bg-white input-focus">
+    </div>
+    <button type="submit" class="w-full py-2.5 rounded-lg btn-primary font-medium">Create Account</button>
+</form>
+
+<p class="mt-5 text-sm text-center text-gray-600">Already have an account? <a href="{% url 'account_login' %}" class="text-brand-accent hover:text-gold">Login</a></p>
+{% endblock %}

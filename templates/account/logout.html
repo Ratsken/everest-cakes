@@ -1,0 +1,13 @@
+{% extends 'account/base_entrance.html' %}
+
+{% block title %}Logout | {{ BUSINESS_NAME }}{% endblock %}
+
+{% block auth_content %}
+<h1 class="text-3xl font-serif font-bold text-brand-dark mb-2">Logout</h1>
+<p class="text-sm text-gray-600 mb-6">Are you sure you want to sign out?</p>
+<form method="post" action="{% url 'account_logout' %}" class="space-y-4">
+    {% csrf_token %}
+    {{ redirect_field }}
+    <button type="submit" class="w-full py-2.5 rounded-lg btn-primary font-medium">Confirm Logout</button>
+</form>
+{% endblock %}
