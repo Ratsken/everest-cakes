@@ -9,7 +9,6 @@ import requests
 logger = logging.getLogger(__name__)
 
 
-@shared_task
 def send_order_notifications(order_id):
     """Send order notifications via email and WhatsApp"""
     from .models import Order
