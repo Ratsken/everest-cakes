@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}About Us | {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+<div class="pt-24 pb-16 bg-brand-cream min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Hero -->
+        <div class="text-center mb-16">
+            <h1 class="text-4xl md:text-5xl font-serif font-bold text-charcoal mb-4">Our Story</h1>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                From a small kitchen in Thika to your special celebrations - baking dreams into reality since 2018.
+            </p>
+        </div>
+        
+        <!-- Story Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+            <div>
+                <img src="https://images.unsplash.com/photo-1556217477-d325251ece38?auto=format&fit=crop&w=800" 
+                     alt="Baker at work" class="rounded-2xl shadow-lg">
+            </div>
+            <div>
+                <h2 class="text-3xl font-serif font-bold text-charcoal mb-4">The Beginning</h2>
+                <p class="text-gray-600 mb-4">
+                    Everest Cakes was born from a simple passion - the joy of creating something beautiful that brings happiness to others. What started as baking birthday cakes for family and friends in our small kitchen in Thika has grown into a beloved bakery serving customers across Kenya.
+                </p>
+                <p class="text-gray-600 mb-4">
+                    Our founder, inspired by the majestic Mount Kenya visible from Thika, named the bakery "Everest Cakes" - symbolizing our commitment to reaching new heights in cake artistry and customer satisfaction.
+                </p>
+                <p class="text-gray-600">
+                    Every cake we create tells a story - your story. Whether it's a wedding, birthday, anniversary, or any special moment, we pour our heart and skill into making it memorable.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Values -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+            <div class="bg-white rounded-2xl p-8 text-center">
+                <div class="w-16 h-16 rounded-full bg-gold/20 flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="heart" class="w-8 h-8 text-gold"></i>
+                </div>
+                <h3 class="text-xl font-serif font-semibold text-charcoal mb-2">Made with Love</h3>
+                <p class="text-gray-600">Every cake is crafted with passion and attention to detail, ensuring each creation is unique.</p>
+            </div>
+            <div class="bg-white rounded-2xl p-8 text-center">
+                <div class="w-16 h-16 rounded-full bg-gold/20 flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="leaf" class="w-8 h-8 text-gold"></i>
+                </div>
+                <h3 class="text-xl font-serif font-semibold text-charcoal mb-2">Quality Ingredients</h3>
+                <p class="text-gray-600">We source the finest ingredients locally and internationally for the best taste and quality.</p>
+            </div>
+            <div class="bg-white rounded-2xl p-8 text-center">
+                <div class="w-16 h-16 rounded-full bg-gold/20 flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="truck" class="w-8 h-8 text-gold"></i>
+                </div>
+                <h3 class="text-xl font-serif font-semibold text-charcoal mb-2">Reliable Delivery</h3>
+                <p class="text-gray-600">We deliver your cakes fresh and on time across Thika and surrounding areas.</p>
+            </div>
+        </div>
+        
+        <!-- Testimonials -->
+        {% if testimonials %}
+        <div class="bg-charcoal rounded-2xl p-12 mb-16">
+            <h2 class="text-3xl font-serif font-bold text-white text-center mb-8">What Our Customers Say</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {% for testimonial in testimonials %}
+                <div class="bg-white/5 rounded-xl p-6">
+                    <div class="flex items-center gap-1 mb-3">
+                        {% for i in "12345" %}
+                        <i data-lucide="star" class="w-4 h-4 text-gold {% if forloop.counter <= testimonial.rating %}fill-gold{% endif %}"></i>
+                        {% endfor %}
+                    </div>
+                    <p class="text-white/80 italic mb-4">"{{ testimonial.comment }}"</p>
+                    <p class="text-white font-medium">{{ testimonial.customer_name }}</p>
+                    {% if testimonial.occasion %}
+                    <p class="text-white/50 text-sm">{{ testimonial.occasion }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- CTA -->
+        <div class="text-center">
+            <h2 class="text-3xl font-serif font-bold text-charcoal mb-4">Ready to Order?</h2>
+            <p class="text-gray-600 mb-6">Let us create the perfect cake for your special occasion.</p>
+            <a href="{% url 'products:list' %}" class="btn-primary px-8 py-3 rounded-full text-lg font-medium inline-block">
+                Browse Our Cakes
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

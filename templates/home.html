@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ site_settings.site_name|default:"Everest Cakes" }} | Luxury Artisanal Bakery Thika{% endblock %}
+
+{% block description %}{{ site_settings.site_description|default:"Bespoke, artisanal cakes for every occasion in Thika. Wedding cakes, birthday cakes, custom designs. You need it... we bake it." }}{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+{% if hero_sections %}
+{% for hero in hero_sections %}
+{% include 'partials/hero_section.html' with hero=hero %}
+{% empty %}
+<!-- Default Hero -->
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-charcoal via-charcoal-light to-charcoal"></div>
+    <div class="absolute inset-0 opacity-20">
+        <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=1920" 
+             alt="Luxury Cake" class="w-full h-full object-cover">
+    </div>
+    <div class="absolute inset-0 bg-black/40"></div>
+    
+    <div class="relative z-10 max-w-5xl mx-auto px-4 text-center">
+        <h1 class="text-5xl md:text-7xl lg:text-8xl font-serif font-bold text-white mb-6 animate-fade-in-up">
+            <span class="text-gold">Everest</span> Cakes
+        </h1>
+        <p class="text-xl md:text-2xl text-white/80 mb-8 max-w-2xl mx-auto animate-fade-in-up" style="animation-delay: 0.2s;">
+            Bespoke, artisanal cakes for every occasion. You need it... we bake it.
+        </p>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style="animation-delay: 0.4s;">
+            <a href="{% url 'products:list' %}" class="btn-primary px-8 py-3 rounded-full text-lg font-medium">
+                Order Now
+            </a>
+            <a href="{% url 'core:about' %}" class="border-2 border-white/50 text-white px-8 py-3 rounded-full text-lg font-medium hover:bg-white hover:text-charcoal transition-all">
+                Our Story
+            </a>
+        </div>
+    </div>
+    
+    <!-- Scroll Indicator -->
+    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+        <i data-lucide="chevron-down" class="w-8 h-8 text-white/50"></i>
+    </div>
+</section>
+{% endfor %}
+{% else %}
+<!-- Default Hero if no hero sections configured -->
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-charcoal via-charcoal-light to-charcoal"></div>
+    <div class="absolute inset-0 opacity-20">
+        <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=1920" 
+             alt="Luxury Cake" class="w-full h-full object-cover">
+    </div>
+    <div class="absolute inset-0 bg-black/40"></div>
+    
+    <div class="relative z-10 max-w-5xl mx-auto px-4 text-center">
+        <h1 class="text-5xl md:text-7xl lg:text-8xl font-serif font-bold text-white mb-6 animate-fade-in-up">
+            <span class="text-gold">Everest</span> Cakes
+        </h1>
+        <p class="text-xl md:text-2xl text-white/80 mb-8 max-w-2xl mx-auto animate-fade-in-up" style="animation-delay: 0.2s;">
+            Bespoke, artisanal cakes for every occasion in Thika. You need it... we bake it.
+        </p>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style="animation-delay: 0.4s;">
+            <a href="{% url 'products:list' %}" class="btn-primary px-8 py-3 rounded-full text-lg font-medium">
+                Order Now
+            </a>
+            <a href="{% url 'core:about' %}" class="border-2 border-white/50 text-white px-8 py-3 rounded-full text-lg font-medium hover:bg-white hover:text-charcoal transition-all">
+                Our Story
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Featured Cards -->
+{% if featured_cards %}
+<section class="py-16 bg-brand-cream">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {% for card in featured_cards %}
+            <div class="bg-white rounded-2xl p-8 {{ card.animation_type }} transition-all duration-300"
+                 style="background-color: {{ card.background_color }}; color: {{ card.text_color }}; border: 1px solid {{ card.border_color }};">
+                {% if card.icon %}
+                <i data-lucide="{{ card.icon }}" class="w-10 h-10 mb-4 text-gold"></i>
+                {% elif card.image %}
+                <img src="{{ card.image.url }}" alt="{{ card.title }}" class="w-16 h-16 object-contain mb-4">
+                {% endif %}
+                <h3 class="text-xl font-serif font-semibold mb-2">{{ card.title }}</h3>
+                {% if card.subtitle %}
+                <p class="text-sm opacity-75 mb-2">{{ card.subtitle }}</p>
+                {% endif %}
+                <p class="text-sm opacity-75">{{ card.description }}</p>
+                {% if card.link %}
+                <a href="{{ card.link }}" class="inline-flex items-center gap-2 mt-4 text-sm font-medium hover:text-gold transition-colors">
+                    Learn More <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Featured Products -->
+{% include 'partials/featured_products.html' %}
+
+<!-- Category Gallery -->
+{% include 'partials/category_gallery.html' %}
+
+<!-- Testimonials -->
+{% if testimonials %}
+<section class="py-20 bg-charcoal">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-4xl md:text-5xl font-serif font-bold text-white mb-4">What Our Customers Say</h2>
+            <p class="text-white/60 max-w-2xl mx-auto">Real stories from real customers who celebrated their special moments with us.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {% for testimonial in testimonials %}
+            <div class="bg-white/5 rounded-2xl p-6 reveal" style="animation-delay: {{ forloop.counter0 }}00ms;">
+                <div class="flex items-center gap-1 mb-4">
+                    {% for i in "12345" %}
+                    <i data-lucide="star" class="w-4 h-4 text-gold {% if forloop.counter <= testimonial.rating %}fill-gold{% endif %}"></i>
+                    {% endfor %}
+                </div>
+                <p class="text-white/80 mb-4 italic">"{{ testimonial.comment }}"</p>
+                <div class="flex items-center gap-3">
+                    {% if testimonial.customer_photo %}
+                    <img src="{{ testimonial.customer_photo.url }}" alt="{{ testimonial.customer_name }}" class="w-10 h-10 rounded-full object-cover">
+                    {% else %}
+                    <div class="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center">
+                        <i data-lucide="user" class="w-5 h-5 text-gold"></i>
+                    </div>
+                    {% endif %}
+                    <div>
+                        <p class="text-white font-medium">{{ testimonial.customer_name }}</p>
+                        {% if testimonial.occasion %}
+                        <p class="text-white/50 text-sm">{{ testimonial.occasion }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+<section class="py-20 bg-gradient-to-br from-brand-accent to-brand-accent/80">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+        <h2 class="text-4xl md:text-5xl font-serif font-bold text-white mb-4">Ready to Order?</h2>
+        <p class="text-white/80 text-lg mb-8 max-w-2xl mx-auto">
+            Let us create the perfect cake for your special occasion. Custom designs, premium ingredients, and delivery across Thika.
+        </p>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a href="{% url 'products:list' %}" class="bg-white text-brand-accent px-8 py-3 rounded-full text-lg font-medium hover:bg-gold hover:text-charcoal transition-all">
+                Browse Cakes
+            </a>
+            <a href="https://wa.me/{{ site_settings.whatsapp_number|slice:'1:' }}" target="_blank" class="border-2 border-white text-white px-8 py-3 rounded-full text-lg font-medium hover:bg-white hover:text-brand-accent transition-all">
+                <span class="flex items-center gap-2">
+                    <i data-lucide="message-circle" class="w-5 h-5"></i>
+                    WhatsApp Us
+                </span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Instagram Feed -->
+<section class="py-16 bg-brand-cream">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+        <h2 class="text-3xl font-serif font-bold text-charcoal mb-4">Follow Us on Instagram</h2>
+        {% if site_settings.instagram_url %}
+        <a href="{{ site_settings.instagram_url }}" target="_blank" class="text-brand-accent hover:text-gold transition-colors mb-8 inline-block">
+            @everestcakes
+        </a>
+        {% endif %}
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <!-- Placeholder Instagram images -->
+            <div class="aspect-square rounded-lg overflow-hidden bg-gray-200">
+                <img src="https://images.unsplash.com/photo-1562440499-64c9a111f713?auto=format&fit=crop&w=300" alt="Cake" class="w-full h-full object-cover hover:scale-105 transition-transform">
+            </div>
+            <div class="aspect-square rounded-lg overflow-hidden bg-gray-200">
+                <img src="https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&w=300" alt="Cake" class="w-full h-full object-cover hover:scale-105 transition-transform">
+            </div>
+            <div class="aspect-square rounded-lg overflow-hidden bg-gray-200">
+                <img src="https://images.unsplash.com/photo-1565958011703-44f9829ba187?auto=format&fit=crop&w=300" alt="Cake" class="w-full h-full object-cover hover:scale-105 transition-transform">
+            </div>
+            <div class="aspect-square rounded-lg overflow-hidden bg-gray-200">
+                <img src="https://images.unsplash.com/photo-1586788680434-30d324b2d46f?auto=format&fit=crop&w=300" alt="Cake" class="w-full h-full object-cover hover:scale-105 transition-transform">
+            </div>
+            <div class="aspect-square rounded-lg overflow-hidden bg-gray-200 hidden md:block">
+                <img src="https://images.unsplash.com/photo-1535141192574-5d4897c12f4f?auto=format&fit=crop&w=300" alt="Cake" class="w-full h-full object-cover hover:scale-105 transition-transform">
+            </div>
+            <div class="aspect-square rounded-lg overflow-hidden bg-gray-200 hidden lg:block">
+                <img src="https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=300" alt="Cake" class="w-full h-full object-cover hover:scale-105 transition-transform">
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

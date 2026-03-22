@@ -1,0 +1,72 @@
+<!-- Featured Products Section -->
+<section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row items-center justify-between mb-12">
+            <div>
+                <h2 class="text-4xl md:text-5xl font-serif font-bold text-charcoal">Featured Cakes</h2>
+                <p class="text-gray-600 mt-2">Handcrafted masterpieces for your special moments</p>
+            </div>
+            <a href="{% url 'products:list' %}?featured=true" class="mt-4 md:mt-0 inline-flex items-center gap-2 text-brand-accent hover:text-gold transition-colors font-medium">
+                View All <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </a>
+        </div>
+        
+        {% if featured_products %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for product in featured_products %}
+            {% include 'includes/product_card.html' with product=product %}
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Placeholder products when no featured products exist -->
+            <div class="bg-brand-cream rounded-2xl p-6 text-center">
+                <div class="aspect-square bg-white rounded-xl mb-4 flex items-center justify-center">
+                    <i data-lucide="cake" class="w-16 h-16 text-gray-300"></i>
+                </div>
+                <h3 class="font-serif font-semibold text-charcoal">Wedding Cakes</h3>
+                <p class="text-sm text-gray-500 mt-1">Elegant designs</p>
+            </div>
+            <div class="bg-brand-cream rounded-2xl p-6 text-center">
+                <div class="aspect-square bg-white rounded-xl mb-4 flex items-center justify-center">
+                    <i data-lucide="cake" class="w-16 h-16 text-gray-300"></i>
+                </div>
+                <h3 class="font-serif font-semibold text-charcoal">Birthday Cakes</h3>
+                <p class="text-sm text-gray-500 mt-1">Fun & festive</p>
+            </div>
+            <div class="bg-brand-cream rounded-2xl p-6 text-center">
+                <div class="aspect-square bg-white rounded-xl mb-4 flex items-center justify-center">
+                    <i data-lucide="cake" class="w-16 h-16 text-gray-300"></i>
+                </div>
+                <h3 class="font-serif font-semibold text-charcoal">Custom Cakes</h3>
+                <p class="text-sm text-gray-500 mt-1">Your vision</p>
+            </div>
+            <div class="bg-brand-cream rounded-2xl p-6 text-center">
+                <div class="aspect-square bg-white rounded-xl mb-4 flex items-center justify-center">
+                    <i data-lucide="cake" class="w-16 h-16 text-gray-300"></i>
+                </div>
+                <h3 class="font-serif font-semibold text-charcoal">Cupcakes</h3>
+                <p class="text-sm text-gray-500 mt-1">Perfect portions</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Bestsellers Section -->
+{% if bestsellers %}
+<section class="py-20 bg-brand-cream">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <span class="text-gold text-sm font-medium uppercase tracking-wider">Customer Favorites</span>
+            <h2 class="text-4xl md:text-5xl font-serif font-bold text-charcoal mt-2">Bestselling Cakes</h2>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for product in bestsellers %}
+            {% include 'includes/product_card.html' with product=product %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}

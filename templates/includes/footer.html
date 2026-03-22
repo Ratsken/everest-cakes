@@ -1,0 +1,71 @@
+<!-- Footer - Compact -->
+<footer class="bg-brand-charcoal text-white mt-16">
+    <div class="max-w-7xl mx-auto px-4 py-12">
+        <div class="grid md:grid-cols-4 gap-8">
+            <!-- Brand -->
+            <div class="md:col-span-2">
+                <h3 class="text-xl font-serif font-bold mb-2">{{ BUSINESS_NAME }}</h3>
+                <p class="text-gray-400 text-sm mb-4">Bespoke, artisanal cakes for every occasion.</p>
+                <div class="flex gap-3">
+                    {% if FACEBOOK_URL %}
+                    <a href="{{ FACEBOOK_URL }}" target="_blank" class="w-8 h-8 bg-white/10 rounded flex items-center justify-center hover:bg-gold hover:text-brand-charcoal transition-colors">
+                        <i data-lucide="facebook" class="w-4 h-4"></i>
+                    </a>
+                    {% endif %}
+                    {% if INSTAGRAM_URL %}
+                    <a href="{{ INSTAGRAM_URL }}" target="_blank" class="w-8 h-8 bg-white/10 rounded flex items-center justify-center hover:bg-gold hover:text-brand-charcoal transition-colors">
+                        <i data-lucide="instagram" class="w-4 h-4"></i>
+                    </a>
+                    {% endif %}
+                    {% if TWITTER_URL %}
+                    <a href="{{ TWITTER_URL }}" target="_blank" class="w-8 h-8 bg-white/10 rounded flex items-center justify-center hover:bg-gold hover:text-brand-charcoal transition-colors">
+                        <i data-lucide="twitter" class="w-4 h-4"></i>
+                    </a>
+                    {% endif %}
+                    <a href="https://wa.me/{{ BUSINESS_WHATSAPP|slice:'1:' }}" target="_blank" class="w-8 h-8 bg-white/10 rounded flex items-center justify-center hover:bg-gold hover:text-brand-charcoal transition-colors">
+                        <i data-lucide="message-circle" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Quick Links -->
+            <div>
+                <h4 class="font-medium mb-3">Quick Links</h4>
+                <nav class="space-y-2 text-sm text-gray-400">
+                    <a href="{% url 'products:list' %}" class="block hover:text-white">Shop</a>
+                    <a href="{% url 'orders:track' %}" class="block hover:text-white">Track Order</a>
+                    <a href="{% url 'orders:enquiry' %}" class="block hover:text-white">Contact</a>
+                    <a href="{% url 'blog:list' %}" class="block hover:text-white">Blog</a>
+                </nav>
+            </div>
+            
+            <!-- Contact -->
+            <div>
+                <h4 class="font-medium mb-3">Contact</h4>
+                <div class="space-y-2 text-sm text-gray-400">
+                    <a href="tel:{{ BUSINESS_PHONE }}" class="flex items-center gap-2 hover:text-white">
+                        <i data-lucide="phone" class="w-4 h-4"></i>
+                        {{ BUSINESS_PHONE }}
+                    </a>
+                    <a href="mailto:{{ BUSINESS_EMAIL }}" class="flex items-center gap-2 hover:text-white">
+                        <i data-lucide="mail" class="w-4 h-4"></i>
+                        {{ BUSINESS_EMAIL }}
+                    </a>
+                    <p class="flex items-center gap-2">
+                        <i data-lucide="map-pin" class="w-4 h-4"></i>
+                        {{ BUSINESS_ADDRESS }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom -->
+        <div class="border-t border-white/10 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
+            <p>&copy; {% now "Y" %} {{ BUSINESS_NAME }}. All rights reserved.</p>
+            <div class="flex gap-4">
+                <a href="{% url 'core:page' 'privacy' %}" class="hover:text-white">Privacy</a>
+                <a href="{% url 'core:page' 'terms' %}" class="hover:text-white">Terms</a>
+            </div>
+        </div>
+    </div>
+</footer>

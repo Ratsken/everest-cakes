@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout | {{ BUSINESS_NAME }}{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-8">
+    <h1 class="text-2xl font-serif font-bold mb-8">Checkout</h1>
+    
+    <form id="checkout-form" hx-post="{% url 'orders:checkout' %}" hx-target="#checkout-result" class="grid lg:grid-cols-5 gap-8">
+        <!-- Customer & Delivery Info -->
+        <div class="lg:col-span-3 space-y-6">
+            <!-- Customer -->
+            <div class="bg-white rounded-xl p-5">
+                <h2 class="text-lg font-medium mb-4 flex items-center gap-2">
+                    <i data-lucide="user" class="w-5 h-5 text-gold"></i>
+                    Customer Details
+                </h2>
+                
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">Name *</label>
+                        <input type="text" name="customer_name" required value="{{ user.full_name|default:'' }}"
+                               class="w-full px-3 py-2 border rounded-lg input-focus">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">Phone *</label>
+                        <input type="tel" name="customer_phone" required value="{{ user.phone_number|default:'' }}"
+                               placeholder="+254 7XX XXX XXX"
+                               class="w-full px-3 py-2 border rounded-lg input-focus">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm text-gray-600 mb-1">Email *</label>
+                        <input type="email" name="customer_email" required value="{{ user.email|default:'' }}"
+                               class="w-full px-3 py-2 border rounded-lg input-focus">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Delivery -->
+            <div class="bg-white rounded-xl p-5">
+                <h2 class="text-lg font-medium mb-4 flex items-center gap-2">
+                    <i data-lucide="map-pin" class="w-5 h-5 text-gold"></i>
+                    Delivery
+                </h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">Address *</label>
+                        <textarea name="delivery_address" rows="2" required
+                                  placeholder="Street, building name, floor/unit..."
+                                  class="w-full px-3 py-2 border rounded-lg input-focus"></textarea>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1">City *</label>
+                            <input type="text" name="delivery_city" required placeholder="Thika"
+                                   class="w-full px-3 py-2 border rounded-lg input-focus">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1">Date *</label>
+                            <input type="date" name="delivery_date" required
+                                   class="w-full px-3 py-2 border rounded-lg input-focus">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1">Time Slot</label>
+                            <select name="delivery_time_slot" class="w-full px-3 py-2 border rounded-lg input-focus">
+                                <option value="">Any time</option>
+                                <option value="morning">Morning (8-12)</option>
+                                <option value="afternoon">Afternoon (12-5)</option>
+                                <option value="evening">Evening (5-7)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-600 mb-1">Instructions</label>
+                            <input type="text" name="delivery_instructions" placeholder="Gate code, landmarks..."
+                                   class="w-full px-3 py-2 border rounded-lg input-focus">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Gift Options -->
+            <details class="bg-white rounded-xl p-5">
+                <summary class="cursor-pointer text-lg font-medium flex items-center gap-2">
+                    <i data-lucide="gift" class="w-5 h-5 text-gold"></i>
+                    Gift Options
+                </summary>
+                <div class="mt-4 space-y-4">
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" name="is_gift" value="true" class="w-4 h-4 rounded text-gold">
+                        <span class="text-sm">This is a gift</span>
+                    </label>
+                    
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <input type="text" name="recipient_name" placeholder="Recipient name"
+                               class="w-full px-3 py-2 border rounded-lg input-focus">
+                        <input type="tel" name="recipient_phone" placeholder="Recipient phone"
+                               class="w-full px-3 py-2 border rounded-lg input-focus">
+                    </div>
+                    <textarea name="gift_message" rows="2" placeholder="Gift message..."
+                              class="w-full px-3 py-2 border rounded-lg input-focus"></textarea>
+                </div>
+            </details>
+            
+            <!-- Special Requests -->
+            <div class="bg-white rounded-xl p-5">
+                <h2 class="text-lg font-medium mb-4 flex items-center gap-2">
+                    <i data-lucide="message-square" class="w-5 h-5 text-gold"></i>
+                    Special Requests
+                </h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">Notes / Instructions</label>
+                        <textarea name="notes" rows="3" placeholder="Allergies, dietary requirements, special requests..."
+                                  class="w-full px-3 py-2 border rounded-lg input-focus"></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm text-gray-600 mb-1">Attachments (Reference Images/Videos)</label>
+                        <input type="file" name="attachments" multiple accept="image/*,video/*"
+                               class="w-full px-3 py-2 border rounded-lg text-sm">
+                        <p class="text-xs text-gray-400 mt-1">Upload reference images or videos for your order (optional)</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Payment -->
+            <div class="bg-white rounded-xl p-5">
+                <h2 class="text-lg font-medium mb-4 flex items-center gap-2">
+                    <i data-lucide="credit-card" class="w-5 h-5 text-gold"></i>
+                    Payment Method
+                </h2>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer has-[:checked]:border-gold has-[:checked]:bg-gold/5">
+                        <input type="radio" name="payment_method" value="cod" checked class="w-4 h-4 text-gold">
+                        <div>
+                            <span class="font-medium text-sm">Cash on Delivery</span>
+                            <p class="text-xs text-gray-500">Pay when you receive</p>
+                        </div>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer has-[:checked]:border-gold has-[:checked]:bg-gold/5">
+                        <input type="radio" name="payment_method" value="mpesa" class="w-4 h-4 text-gold">
+                        <div>
+                            <span class="font-medium text-sm">M-Pesa</span>
+                            <p class="text-xs text-gray-500">Pay securely</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Order Summary -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-xl p-5 sticky top-24">
+                <h2 class="text-lg font-medium mb-4">Order Summary</h2>
+                
+                <!-- Items -->
+                <div class="space-y-3 mb-4 max-h-60 overflow-y-auto">
+                    {% for item in cart.items.all %}
+                    <div class="flex gap-3 py-2 border-b last:border-0">
+                        <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                            {% if item.product.featured_image %}
+                            <img src="{{ item.product.featured_image.url }}" class="w-full h-full object-cover">
+                            {% endif %}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium truncate">{{ item.product.name }}</p>
+                            <p class="text-xs text-gray-500">{{ item.quantity }}x KSh {{ item.unit_price }}</p>
+                            {% if item.selected_attributes_display or item.selected_addons_display %}
+                            <p class="text-xs text-gold truncate">
+                                {% for attr in item.selected_attributes_display %}{{ attr }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                                {% for addon in item.selected_addons_display %} + {{ addon }}{% endfor %}
+                            </p>
+                            {% endif %}
+                        </div>
+                        <span class="text-sm font-medium">KSh {{ item.total_price }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Totals -->
+                <div class="border-t pt-4 space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Subtotal</span>
+                        <span>KSh {{ cart.subtotal }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Delivery</span>
+                        {% if cart.delivery_fee == 0 %}
+                        <span class="text-green-600">Free</span>
+                        {% else %}
+                        <span>KSh {{ cart.delivery_fee }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="flex justify-between font-bold text-lg pt-2 border-t">
+                        <span>Total</span>
+                        <span class="text-gold">KSh {{ cart.total }}</span>
+                    </div>
+                </div>
+                
+                <!-- Submit -->
+                <button type="submit" class="w-full btn-primary py-3 rounded-lg font-medium mt-6 flex items-center justify-center gap-2">
+                    <i data-lucide="check-circle" class="w-5 h-5"></i>
+                    Place Order
+                </button>
+                
+                <p class="text-xs text-gray-500 text-center mt-4">
+                    By placing this order, you agree to our <a href="{% url 'core:page' 'terms' %}" class="text-gold">Terms</a>
+                </p>
+            </div>
+        </div>
+    </form>
+    
+    <!-- Result Container -->
+    <div id="checkout-result"></div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Set min delivery date
+const dateInput = document.querySelector('input[name="delivery_date"]');
+if (dateInput) {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    dateInput.min = tomorrow.toISOString().split('T')[0];
+}
+</script>
+{% endblock %}

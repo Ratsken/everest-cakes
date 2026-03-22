@@ -1,0 +1,21 @@
+<!-- Cart Sidebar -->
+<div id="cart-overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="closeCart()"></div>
+
+<aside id="cart-sidebar" class="fixed top-0 right-0 w-full max-w-sm h-full bg-white z-50 shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
+    <!-- Header -->
+    <div class="flex items-center justify-between p-4 border-b">
+        <h2 class="text-lg font-serif font-bold">Your Cart (<span id="cart-badge">{{ cart.total_items }}</span>)</h2>
+        <button onclick="closeCart()" class="p-1 hover:bg-gray-100 rounded-lg transition-colors">
+            <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+    </div>
+    
+    <!-- Cart Content -->
+    <div id="cart-content" class="flex-1 overflow-y-auto" hx-get="{% url 'cart:sidebar' %}" hx-trigger="load">
+        <!-- Loading skeleton -->
+        <div class="p-4 space-y-3">
+            <div class="animate-pulse bg-gray-100 h-20 rounded-lg"></div>
+            <div class="animate-pulse bg-gray-100 h-20 rounded-lg"></div>
+        </div>
+    </div>
+</aside>

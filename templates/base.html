@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ BUSINESS_NAME|default:"Everest Cakes" }}{% endblock %}</title>
+    <meta name="description" content="{% block description %}Bespoke, artisanal cakes for every occasion. Order online for delivery.{% endblock %}">
+    <meta name="keywords" content="{% block keywords %}cakes, bakery, wedding cakes, birthday cakes, custom cakes{% endblock %}">
+    
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    
+    <!-- Open Graph -->
+    {% block og_tags %}
+    <meta property="og:title" content="{% block og_title %}{{ BUSINESS_NAME }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Bespoke, artisanal cakes for every occasion.{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{{ SITE_URL }}/static/images/og-default.jpg{% endblock %}">
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta name="twitter:card" content="summary_large_image">
+    {% endblock %}
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand': {
+                            'cream': '#FAF8F5',
+                            'charcoal': '#1C1C1C',
+                            'accent': '#2D5A27',
+                        },
+                        'gold': '#C9A962',
+                    },
+                    fontFamily: {
+                        'serif': ['Playfair Display', 'serif'],
+                        'sans': ['Inter', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10" defer></script>
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #FAF8F5; color: #1C1C1C; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Playfair Display', serif; }
+        
+        /* Compact scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #FAF8F5; }
+        ::-webkit-scrollbar-thumb { background: #C9A962; border-radius: 3px; }
+        
+        /* Animations */
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        .slide-up { animation: slideUp 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Button styles */
+        .btn-primary { background: linear-gradient(135deg, #C9A962, #B8963E); color: #1C1C1C; }
+        .btn-primary:hover { background: linear-gradient(135deg, #D9B972, #C9A962); transform: translateY(-1px); }
+        .btn-outline { border: 1.5px solid #1C1C1C; color: #1C1C1C; }
+        .btn-outline:hover { background: #1C1C1C; color: #FAF8F5; }
+        
+        /* Card hover */
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.08); }
+        
+        /* Form focus */
+        .input-focus:focus { border-color: #C9A962; box-shadow: 0 0 0 2px rgba(201,169,98,0.15); }
+        
+        /* Cart sidebar */
+        .cart-open { transform: translateX(0) !important; }
+        
+        /* Toast */
+        .toast { animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    </style>
+    
+    {% block extra_head %}{% endblock %}
+    
+    <!-- Google Analytics -->
+    {% if GOOGLE_ANALYTICS_ID %}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ GOOGLE_ANALYTICS_ID }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '{{ GOOGLE_ANALYTICS_ID }}');
+    </script>
+    {% endif %}
+</head>
+<body class="antialiased" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    
+    <!-- Navigation -->
+    {% include 'includes/navbar.html' %}
+    
+    <!-- Main Content -->
+    <main class="pt-16">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    {% include 'includes/footer.html' %}
+    
+    <!-- Cart Sidebar -->
+    {% include 'includes/cart_sidebar.html' %}
+    
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
+    
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="fixed inset-0 bg-brand-charcoal z-50 transform -translate-x-full transition-transform duration-300 lg:hidden">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-8">
+                <span class="text-xl font-serif font-bold text-white">{{ BUSINESS_NAME }}</span>
+                <button onclick="toggleMenu()" class="text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <nav class="space-y-4">
+                <a href="{% url 'core:home' %}" class="block text-white text-lg py-2" onclick="toggleMenu()">Home</a>
+                <a href="{% url 'products:list' %}" class="block text-white text-lg py-2" onclick="toggleMenu()">Shop</a>
+                <a href="{% url 'orders:track' %}" class="block text-white text-lg py-2" onclick="toggleMenu()">Track Order</a>
+                <a href="{% url 'core:contact' %}" class="block text-white text-lg py-2" onclick="toggleMenu()">Contact</a>
+            </nav>
+        </div>
+    </div>
+    
+    <script>
+        // Icons
+        document.addEventListener('DOMContentLoaded', () => lucide.createIcons());
+        document.body.addEventListener('htmx:afterSwap', () => lucide.createIcons());
+        
+        // Mobile menu
+        function toggleMenu() {
+            document.getElementById('mobile-menu').classList.toggle('-translate-x-full');
+        }
+        
+        // Cart sidebar
+        function openCart() { document.getElementById('cart-sidebar').classList.add('cart-open'); }
+        function closeCart() { document.getElementById('cart-sidebar').classList.remove('cart-open'); }
+        
+        // Toast
+        function showToast(msg, type = 'success') {
+            const colors = { success: 'bg-green-600', error: 'bg-red-600', info: 'bg-blue-600' };
+            const toast = document.createElement('div');
+            toast.className = `toast ${colors[type]} text-white px-4 py-3 rounded-lg shadow-lg text-sm`;
+            toast.innerHTML = `<div class="flex items-center gap-2"><i data-lucide="${type === 'success' ? 'check' : 'alert-circle'}" class="w-4 h-4"></i>${msg}</div>`;
+            document.getElementById('toast-container').appendChild(toast);
+            lucide.createIcons();
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+        
+        // Quantity
+        function qty(input, delta) {
+            input.value = Math.max(1, Math.min(parseInt(input.value) + delta, parseInt(input.max || 99)));
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        
+        // Price calculator
+        function updatePrice() {
+            const form = document.getElementById('product-form');
+            if (!form) return;
+            
+            const formData = new FormData(form);
+            const params = new URLSearchParams();
+            params.append('product_id', formData.get('product_id'));
+            if (formData.get('variant_id')) params.append('variant_id', formData.get('variant_id'));
+            
+            formData.forEach((value, key) => {
+                if (key.startsWith('attr_')) params.append(key, value);
+                if (key.startsWith('addon_') && value) {
+                    params.append(key, value);
+                    const qty = formData.get(`addon_qty_${key.replace('addon_', '')}`);
+                    if (qty) params.append(`addon_qty_${key.replace('addon_', '')}`, qty);
+                }
+            });
+            
+            fetch(`/cart/price/?${params}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.total_price) {
+                        document.getElementById('total-price').textContent = `KSh ${data.total_price}`;
+                        if (data.addons && data.addons.length > 0) {
+                            const addonList = data.addons.map(a => `${a.name} x${a.quantity}`).join(', ');
+                            document.getElementById('addons-summary').textContent = addonList;
+                        }
+                    }
+                });
+        }
+    </script>
+    
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

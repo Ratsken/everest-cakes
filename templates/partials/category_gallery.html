@@ -1,0 +1,59 @@
+<!-- Category Gallery Section -->
+<section class="py-20 bg-brand-cream">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <span class="text-gold text-sm font-medium uppercase tracking-wider">Explore</span>
+            <h2 class="text-4xl md:text-5xl font-serif font-bold text-charcoal mt-2">Shop by Category</h2>
+            <p class="text-gray-600 mt-2">Find the perfect cake for every occasion</p>
+        </div>
+        
+        {% if categories %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for category in categories %}
+            <a href="{{ category.get_absolute_url }}" class="group relative aspect-[4/3] rounded-2xl overflow-hidden reveal">
+                {% if category.image %}
+                <img src="{{ category.image.url }}" alt="{{ category.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                {% else %}
+                <div class="w-full h-full bg-gradient-to-br from-brand-accent/20 to-gold/20 flex items-center justify-center">
+                    <i data-lucide="{{ category.icon|default:'cake' }}" class="w-20 h-20 text-brand-accent"></i>
+                </div>
+                {% endif %}
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                <div class="absolute bottom-0 left-0 right-0 p-6">
+                    <h3 class="text-2xl font-serif font-bold text-white group-hover:text-gold transition-colors">{{ category.name }}</h3>
+                    <p class="text-white/70 text-sm mt-1">{{ category.product_count }} products</p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- Default categories when none configured -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <a href="{% url 'products:list' %}?category=wedding" class="group relative aspect-[4/3] rounded-2xl overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1535254973040-607b474cb50d?auto=format&fit=crop&w=600" alt="Wedding Cakes" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                <div class="absolute bottom-0 left-0 right-0 p-6">
+                    <h3 class="text-2xl font-serif font-bold text-white group-hover:text-gold transition-colors">Wedding Cakes</h3>
+                    <p class="text-white/70 text-sm mt-1">Elegant & romantic</p>
+                </div>
+            </a>
+            <a href="{% url 'products:list' %}?category=birthday" class="group relative aspect-[4/3] rounded-2xl overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1558636508-e0db3814bd1d?auto=format&fit=crop&w=600" alt="Birthday Cakes" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                <div class="absolute bottom-0 left-0 right-0 p-6">
+                    <h3 class="text-2xl font-serif font-bold text-white group-hover:text-gold transition-colors">Birthday Cakes</h3>
+                    <p class="text-white/70 text-sm mt-1">Fun & festive</p>
+                </div>
+            </a>
+            <a href="{% url 'products:list' %}?category=custom" class="group relative aspect-[4/3] rounded-2xl overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1562440499-64c9a111f713?auto=format&fit=crop&w=600" alt="Custom Cakes" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                <div class="absolute bottom-0 left-0 right-0 p-6">
+                    <h3 class="text-2xl font-serif font-bold text-white group-hover:text-gold transition-colors">Custom Cakes</h3>
+                    <p class="text-white/70 text-sm mt-1">Your imagination, our craft</p>
+                </div>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>

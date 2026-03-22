@@ -1,0 +1,74 @@
+<!-- Hero Section Partial - Controlled from Admin -->
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+    {% if hero.background_type == 'image' and hero.background_image %}
+    <div class="absolute inset-0">
+        <img src="{{ hero.background_image.url }}" alt="{{ hero.title }}" class="w-full h-full object-cover">
+    </div>
+    {% elif hero.background_type == 'video' and hero.background_video %}
+    <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover">
+        <source src="{{ hero.background_video.url }}" type="video/mp4">
+    </video>
+    {% elif hero.background_type == 'gradient' %}
+    <div class="absolute inset-0 bg-gradient-to-br" style="background: linear-gradient(135deg, {{ hero.gradient_start }}, {{ hero.gradient_end }});"></div>
+    {% elif hero.background_type == 'slider' and hero.slider_images %}
+    <div class="absolute inset-0" data-hero-slider data-interval="{{ hero.slider_interval }}">
+        {% for image in hero.slider_images %}
+        <div class="hero-slide {% if forloop.first %}active{% endif %}">
+            <img src="{{ image }}" alt="Slide {{ forloop.counter }}" class="w-full h-full object-cover">
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="absolute inset-0 bg-gradient-to-br from-charcoal via-charcoal-light to-charcoal"></div>
+    {% endif %}
+    
+    <!-- Overlay -->
+    {% if hero.show_overlay %}
+    <div class="absolute inset-0 bg-black/{{ hero.overlay_opacity|default:40 }}"></div>
+    {% endif %}
+    
+    <!-- Content -->
+    <div class="relative z-10 max-w-5xl mx-auto px-4 text-center">
+        <h1 class="text-5xl md:text-7xl lg:text-8xl font-serif font-bold text-white mb-6 
+                   {% if hero.title_animation == 'fade' %}animate-fade-in{% elif hero.title_animation == 'slide' %}animate-fade-in-up{% elif hero.title_animation == 'zoom' %}animate-zoom-in{% endif %}"
+            style="{% if hero.animation_delay %}animation-delay: {{ hero.animation_delay }}ms;{% endif %}">
+            {{ hero.title }}
+        </h1>
+        
+        {% if hero.subtitle %}
+        <p class="text-xl md:text-2xl text-white/80 mb-4 
+                  {% if hero.content_animation == 'fade' %}animate-fade-in{% elif hero.content_animation == 'slide' %}animate-fade-in-up{% endif %}"
+           style="animation-delay: {{ hero.animation_delay|add:200 }}ms;">
+            {{ hero.subtitle }}
+        </p>
+        {% endif %}
+        
+        {% if hero.description %}
+        <p class="text-lg text-white/70 mb-8 max-w-2xl mx-auto 
+                  {% if hero.content_animation == 'fade' %}animate-fade-in{% elif hero.content_animation == 'slide' %}animate-fade-in-up{% endif %}"
+           style="animation-delay: {{ hero.animation_delay|add:400 }}ms;">
+            {{ hero.description }}
+        </p>
+        {% endif %}
+        
+        {% if hero.cta_text %}
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 
+                    {% if hero.content_animation == 'fade' %}animate-fade-in{% elif hero.content_animation == 'slide' %}animate-fade-in-up{% endif %}"
+             style="animation-delay: {{ hero.animation_delay|add:600 }}ms;">
+            <a href="{{ hero.cta_link|default:'#' }}" class="{{ hero.cta_style }} px-8 py-3 rounded-full text-lg font-medium">
+                {{ hero.cta_text }}
+            </a>
+            {% if hero.secondary_cta_text %}
+            <a href="{{ hero.secondary_cta_link|default:'#' }}" class="border-2 border-white/50 text-white px-8 py-3 rounded-full text-lg font-medium hover:bg-white hover:text-charcoal transition-all">
+                {{ hero.secondary_cta_text }}
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Scroll Indicator -->
+    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+        <i data-lucide="chevron-down" class="w-8 h-8 text-white/50"></i>
+    </div>
+</section>

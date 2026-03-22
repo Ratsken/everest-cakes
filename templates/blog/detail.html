@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.title }} | {{ site_settings.site_name }}{% endblock %}
+{% block description %}{{ post.excerpt|default:post.meta_description|truncatechars:160 }}{% endblock %}
+{% block og_title %}{{ og_title|default:post.title }}{% endblock %}
+{% block og_description %}{{ og_description|default:post.excerpt }}{% endblock %}
+{% block og_image %}{{ og_image|default:post.featured_image.url }}{% endblock %}
+{% block og_type %}article{% endblock %}
+
+{% block content %}
+<div class="pt-24 pb-16 bg-brand-cream min-h-screen">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Breadcrumb -->
+        <nav class="flex items-center gap-2 text-sm text-gray-500 mb-8">
+            <a href="{% url 'core:home' %}" class="hover:text-gold">Home</a>
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            <a href="{% url 'blog:list' %}" class="hover:text-gold">Blog</a>
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            <span class="text-charcoal">{{ post.title|truncatechars:30 }}</span>
+        </nav>
+        
+        <article class="bg-white rounded-2xl overflow-hidden shadow-sm">
+            <!-- Featured Image -->
+            {% if post.featured_image %}
+            <div class="aspect-video">
+                <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="w-full h-full object-cover">
+            </div>
+            {% endif %}
+            
+            <div class="p-8 md:p-12">
+                <!-- Meta -->
+                <div class="flex flex-wrap items-center gap-4 mb-4">
+                    {% if post.category %}
+                    <a href="{{ post.category.get_absolute_url }}" class="text-sm text-brand-accent hover:text-gold uppercase tracking-wider">
+                        {{ post.category.name }}
+                    </a>
+                    {% endif %}
+                    <span class="text-sm text-gray-500">{{ post.published_at|date:"F j, Y" }}</span>
+                    <span class="text-sm text-gray-500">• {{ post.view_count }} views</span>
+                </div>
+                
+                <!-- Title -->
+                <h1 class="text-3xl md:text-4xl font-serif font-bold text-charcoal mb-6">{{ post.title }}</h1>
+                
+                <!-- Author -->
+                <div class="flex items-center gap-4 mb-8 pb-8 border-b">
+                    <div class="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center">
+                        <i data-lucide="user" class="w-6 h-6 text-gold"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium text-charcoal">{{ post.author.full_name|default:post.author.email }}</p>
+                        <p class="text-sm text-gray-500">Author</p>
+                    </div>
+                </div>
+                
+                <!-- Content -->
+                <div class="prose prose-lg max-w-none mb-8">
+                    {{ post.content|safe }}
+                </div>
+                
+                <!-- Tags -->
+                {% if post.tags.all %}
+                <div class="flex flex-wrap gap-2 mb-8">
+                    {% for tag in post.tags.all %}
+                    <span class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">#{{ tag.name }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <!-- Social Sharing -->
+                <div class="border-t pt-8">
+                    <p class="text-sm text-gray-600 mb-3">Share this article:</p>
+                    <div class="flex items-center gap-3">
+                        <button onclick="shareOnFacebook('{{ request.build_absolute_uri }}')"
+                                class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-colors">
+                            <i data-lucide="facebook" class="w-5 h-5"></i>
+                        </button>
+                        <button onclick="shareOnTwitter('{{ request.build_absolute_uri }}', '{{ post.title }}')"
+                                class="w-10 h-10 rounded-full bg-sky-500 text-white flex items-center justify-center hover:bg-sky-600 transition-colors">
+                            <i data-lucide="twitter" class="w-5 h-5"></i>
+                        </button>
+                        <button onclick="shareOnWhatsApp('{{ request.build_absolute_uri }}', 'Check out: {{ post.title }}')"
+                                class="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center hover:bg-green-600 transition-colors">
+                            <i data-lucide="message-circle" class="w-5 h-5"></i>
+                        </button>
+                        <button onclick="copyLink('{{ request.build_absolute_uri }}')"
+                                class="w-10 h-10 rounded-full bg-gray-200 text-charcoal flex items-center justify-center hover:bg-gray-300 transition-colors">
+                            <i data-lucide="link" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </article>
+        
+        <!-- Comments Section -->
+        <div class="bg-white rounded-2xl p-8 mt-8">
+            <h3 class="text-xl font-serif font-semibold text-charcoal mb-6">Comments ({{ post.comments.count }})</h3>
+            
+            {% if comments %}
+            <div class="space-y-6 mb-8">
+                {% for comment in comments %}
+                <div class="border-l-2 border-gold pl-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="font-medium text-charcoal">
+                            {% if comment.user %}{{ comment.user.full_name|default:comment.user.email }}{% else %}{{ comment.guest_name }}{% endif %}
+                        </span>
+                        <span class="text-xs text-gray-400">{{ comment.created_at|date:"M j, Y" }}</span>
+                    </div>
+                    <p class="text-gray-600">{{ comment.content }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- Comment Form -->
+            <form hx-post="{% url 'blog:submit_comment' post.slug %}" hx-target="#comments-section" class="space-y-4">
+                {% if not user.is_authenticated %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" name="name" placeholder="Your Name" required
+                           class="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-gold">
+                    <input type="email" name="email" placeholder="Your Email" required
+                           class="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-gold">
+                </div>
+                {% endif %}
+                <textarea name="content" rows="3" placeholder="Write a comment..." required
+                          class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-gold"></textarea>
+                <button type="submit" class="btn-primary px-6 py-2 rounded-lg font-medium">Post Comment</button>
+            </form>
+        </div>
+        
+        <!-- Related Posts -->
+        {% if related_posts %}
+        <div class="mt-12">
+            <h2 class="text-2xl font-serif font-bold text-charcoal mb-6">Related Articles</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {% for related in related_posts %}
+                <a href="{{ related.get_absolute_url }}" class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
+                    {% if related.featured_image %}
+                    <img src="{{ related.featured_image.url }}" alt="{{ related.title }}" class="w-full h-32 object-cover">
+                    {% endif %}
+                    <div class="p-4">
+                        <h3 class="font-serif font-semibold text-charcoal line-clamp-2">{{ related.title }}</h3>
+                        <p class="text-xs text-gray-500 mt-2">{{ related.published_at|date:"F j, Y" }}</p>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}Blog | {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+<div class="pt-24 pb-16 bg-brand-cream min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-serif font-bold text-charcoal">Our Blog</h1>
+            <p class="text-gray-600 mt-2">Cake inspiration, baking tips, and more</p>
+        </div>
+        
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Blog Posts -->
+            <div class="flex-1">
+                {% if posts %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {% for post in posts %}
+                    <article class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
+                        <a href="{{ post.get_absolute_url }}" class="block aspect-video overflow-hidden">
+                            {% if post.featured_image %}
+                            <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" 
+                                 class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+                            {% else %}
+                            <div class="w-full h-full bg-brand-cream flex items-center justify-center">
+                                <i data-lucide="image" class="w-16 h-16 text-gray-300"></i>
+                            </div>
+                            {% endif %}
+                        </a>
+                        <div class="p-6">
+                            {% if post.category %}
+                            <a href="{{ post.category.get_absolute_url }}" class="text-sm text-brand-accent hover:text-gold uppercase tracking-wider">
+                                {{ post.category.name }}
+                            </a>
+                            {% endif %}
+                            <h2 class="text-xl font-serif font-semibold text-charcoal mt-2 hover:text-gold transition-colors">
+                                <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+                            </h2>
+                            <p class="text-gray-600 text-sm mt-2 line-clamp-2">{{ post.excerpt|default:post.content|truncatewords:30|striptags }}</p>
+                            <div class="flex items-center gap-4 mt-4 text-sm text-gray-500">
+                                <span>{{ post.published_at|date:"F j, Y" }}</span>
+                                <span>•</span>
+                                <span>{{ post.view_count }} views</span>
+                            </div>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+                
+                <!-- Pagination -->
+                {% if posts.has_other_pages %}
+                <div class="mt-8 flex justify-center gap-2">
+                    {% if posts.has_previous %}
+                    <a href="?page={{ posts.previous_page_number }}" class="px-4 py-2 border rounded-lg hover:bg-gray-50">Previous</a>
+                    {% endif %}
+                    <span class="px-4 py-2 bg-gold text-charcoal rounded-lg">{{ posts.number }}</span>
+                    {% if posts.has_next %}
+                    <a href="?page={{ posts.next_page_number }}" class="px-4 py-2 border rounded-lg hover:bg-gray-50">Next</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% else %}
+                <div class="text-center py-16">
+                    <div class="w-24 h-24 mx-auto rounded-full bg-gray-100 flex items-center justify-center mb-6">
+                        <i data-lucide="file-text" class="w-12 h-12 text-gray-300"></i>
+                    </div>
+                    <h3 class="text-xl font-serif font-semibold text-charcoal mb-2">No posts yet</h3>
+                    <p class="text-gray-500">Check back soon for cake inspiration and baking tips!</p>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="lg:w-80">
+                <!-- Featured Posts -->
+                {% if featured_posts %}
+                <div class="bg-white rounded-2xl p-6 mb-6">
+                    <h3 class="font-serif font-semibold text-charcoal mb-4">Featured Posts</h3>
+                    <div class="space-y-4">
+                        {% for post in featured_posts %}
+                        <a href="{{ post.get_absolute_url }}" class="block group">
+                            <h4 class="font-medium text-charcoal group-hover:text-gold transition-colors line-clamp-2">{{ post.title }}</h4>
+                            <p class="text-xs text-gray-500 mt-1">{{ post.published_at|date:"F j, Y" }}</p>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Categories -->
+                <div class="bg-white rounded-2xl p-6">
+                    <h3 class="font-serif font-semibold text-charcoal mb-4">Categories</h3>
+                    <div class="space-y-2">
+                        {% for cat in categories %}
+                        <a href="{{ cat.get_absolute_url }}" class="flex items-center justify-between py-2 text-gray-600 hover:text-gold transition-colors">
+                            <span>{{ cat.name }}</span>
+                            <span class="text-sm text-gray-400">({{ cat.posts.count }})</span>
+                        </a>
+                        {% empty %}
+                        <p class="text-gray-500 text-sm">No categories yet.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

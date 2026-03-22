@@ -1,0 +1,67 @@
+<!-- Product Card - Compact & Responsive -->
+<article class="group bg-white rounded-xl overflow-hidden shadow-sm card-hover">
+    <a href="{{ product.get_absolute_url }}" class="block">
+        <!-- Image -->
+        <div class="relative aspect-square overflow-hidden bg-brand-cream">
+            {% if product.featured_image %}
+            <img src="{{ product.featured_image.url }}" alt="{{ product.name }}" 
+                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            {% else %}
+            <div class="w-full h-full flex items-center justify-center">
+                <i data-lucide="cake" class="w-12 h-12 text-gray-200"></i>
+            </div>
+            {% endif %}
+            
+            <!-- Badges -->
+            <div class="absolute top-2 left-2 flex flex-col gap-1">
+                {% if product.is_new %}
+                <span class="px-2 py-0.5 bg-brand-accent text-white text-[10px] font-medium rounded">NEW</span>
+                {% endif %}
+                {% if product.is_bestseller %}
+                <span class="px-2 py-0.5 bg-gold text-brand-charcoal text-[10px] font-medium rounded">BEST</span>
+                {% endif %}
+                {% if product.sale_price %}
+                <span class="px-2 py-0.5 bg-red-500 text-white text-[10px] font-medium rounded">-{{ product.discount_percentage }}%</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Content -->
+        <div class="p-3">
+            {% if product.category %}
+            <span class="text-[10px] text-gray-400 uppercase tracking-wider">{{ product.category.name }}</span>
+            {% endif %}
+            
+            <h3 class="text-sm font-medium text-brand-charcoal group-hover:text-gold transition-colors line-clamp-2 mt-0.5">
+                {{ product.name }}
+            </h3>
+            
+            <!-- Price -->
+            <div class="flex items-center gap-2 mt-2">
+                <span class="text-base font-bold text-brand-charcoal">KSh {{ product.current_price }}</span>
+                {% if product.sale_price %}
+                <span class="text-xs text-gray-400 line-through">KSh {{ product.base_price }}</span>
+                {% endif %}
+            </div>
+            
+            <!-- Stock -->
+            {% if product.stock_status == 'out_of_stock' %}
+            <p class="text-[10px] text-red-500 mt-1">Out of stock</p>
+            {% elif product.stock_status == 'low_stock' %}
+            <p class="text-[10px] text-yellow-600 mt-1">Only {{ product.stock_quantity }} left</p>
+            {% endif %}
+        </div>
+    </a>
+    
+    <!-- Quick Add -->
+    <div class="px-3 pb-3">
+        <button hx-post="{% url 'cart:add' %}"
+                hx-vals='{"product_id": "{{ product.id }}", "quantity": 1}'
+                hx-target="#cart-content"
+                class="w-full py-2 text-xs font-medium border border-brand-charcoal rounded-lg hover:bg-brand-charcoal hover:text-white transition-all
+                       {% if product.stock_status == 'out_of_stock' %}opacity-50 cursor-not-allowed{% endif %}"
+                {% if product.stock_status == 'out_of_stock' %}disabled{% endif %}>
+            {% if product.stock_status == 'out_of_stock' %}Unavailable{% else %}Quick Add{% endif %}
+        </button>
+    </div>
+</article>

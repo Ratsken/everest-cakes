@@ -1,0 +1,38 @@
+<!-- Order Success -->
+<div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full text-center">
+        <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+            <i data-lucide="check-circle" class="w-8 h-8 text-green-600"></i>
+        </div>
+        
+        <h2 class="text-xl font-serif font-bold mb-2">Order Placed!</h2>
+        <p class="text-gray-600 mb-4">Thank you! We've received your order and will start preparing it.</p>
+        
+        <div class="bg-gray-50 rounded-lg p-4 mb-4">
+            <p class="text-sm text-gray-600 mb-1">Order Number</p>
+            <p class="text-2xl font-bold text-gold">{{ order.order_number }}</p>
+        </div>
+        
+        <div class="text-sm text-gray-600 mb-6 space-y-1">
+            <p><strong>Total:</strong> KSh {{ order.total }}</p>
+            <p><strong>Delivery:</strong> {{ order.delivery_date|date:"D, M d" }}</p>
+            <p><strong>Payment:</strong> {{ order.get_payment_method_display }}</p>
+        </div>
+        
+        {% if order.payment_method == 'mpesa' and order.payment_status == 'pending' %}
+        <div class="bg-yellow-50 text-yellow-800 rounded-lg p-3 text-sm mb-6">
+            <i data-lucide="alert-circle" class="w-4 h-4 inline mr-1"></i>
+            Check your phone for M-Pesa prompt
+        </div>
+        {% endif %}
+        
+        <div class="flex gap-3">
+            <a href="{% url 'orders:detail' order.order_number %}" class="flex-1 btn-primary py-2.5 rounded-lg text-sm">
+                View Order
+            </a>
+            <a href="{% url 'products:list' %}" class="flex-1 py-2.5 border rounded-lg text-sm hover:bg-gray-50">
+                Continue
+            </a>
+        </div>
+    </div>
+</div>

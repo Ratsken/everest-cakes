@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Search Results | {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+<div class="pt-24 pb-16 bg-brand-cream min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-serif font-bold text-charcoal mb-4">Search Results</h1>
+            
+            <form action="{% url 'core:search' %}" method="get" class="max-w-xl mx-auto">
+                <div class="relative">
+                    <input type="text" name="q" value="{{ query }}" placeholder="Search for cakes..."
+                           class="w-full px-6 py-4 pr-12 border border-gray-200 rounded-full focus:outline-none focus:border-gold text-lg">
+                    <button type="submit" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gold">
+                        <i data-lucide="search" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        {% if query %}
+        <p class="text-gray-600 mb-8 text-center">
+            {% if total_results > 0 %}
+            Found {{ total_results }} result{{ total_results|pluralize }} for "<strong>{{ query }}</strong>"
+            {% else %}
+            No results found for "<strong>{{ query }}</strong>"
+            {% endif %}
+        </p>
+        {% endif %}
+        
+        {% if products %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for product in products %}
+            {% include 'includes/product_card.html' with product=product %}
+            {% endfor %}
+        </div>
+        {% elif query %}
+        <div class="text-center py-12">
+            <div class="w-24 h-24 mx-auto rounded-full bg-gray-100 flex items-center justify-center mb-6">
+                <i data-lucide="search-x" class="w-12 h-12 text-gray-300"></i>
+            </div>
+            <h3 class="text-xl font-serif font-semibold text-charcoal mb-2">No products found</h3>
+            <p class="text-gray-500 mb-6">Try searching with different keywords</p>
+            <a href="{% url 'products:list' %}" class="btn-primary px-6 py-2 rounded-lg font-medium">
+                Browse All Products
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

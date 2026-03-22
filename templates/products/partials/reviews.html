@@ -1,0 +1,39 @@
+<!-- Reviews Partial (HTMX) -->
+{% if reviews %}
+<div class="space-y-6">
+    {% for review in reviews %}
+    <div class="bg-gray-50 rounded-xl p-6">
+        <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center">
+                    <i data-lucide="user" class="w-5 h-5 text-gold"></i>
+                </div>
+                <div>
+                    <p class="font-medium text-charcoal">
+                        {% if review.user %}{{ review.user.full_name|default:review.user.email }}{% else %}{{ review.guest_name }}{% endif %}
+                    </p>
+                    <div class="flex items-center gap-1">
+                        {% for i in "12345" %}
+                        <i data-lucide="star" class="w-3 h-3 text-gold {% if forloop.counter <= review.rating %}fill-gold{% endif %}"></i>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <span class="text-sm text-gray-500">{{ review.created_at|date:"M d, Y" }}</span>
+        </div>
+        {% if review.title %}
+        <h4 class="font-medium text-charcoal mb-2">{{ review.title }}</h4>
+        {% endif %}
+        <p class="text-gray-600">{{ review.comment }}</p>
+        {% if review.is_verified_purchase %}
+        <span class="inline-flex items-center gap-1 mt-3 text-xs text-green-600">
+            <i data-lucide="check-circle" class="w-3 h-3"></i>
+            Verified Purchase
+        </span>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-gray-500 text-center py-8">No reviews yet. Be the first to review this product!</p>
+{% endif %}
