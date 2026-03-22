@@ -123,6 +123,15 @@ class HeroSection(models.Model):
     title = models.CharField(max_length=200)
     subtitle = models.CharField(max_length=300, blank=True)
     description = models.TextField(blank=True)
+
+    # Category link — when set the CTA auto-points to this category and the price badge shows its min price
+    linked_category = models.ForeignKey(
+        'products.Category',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='hero_sections',
+        help_text="Associate this hero slide with a category (auto-fills CTA link & price badge)",
+    )
     
     # Background Options
     BACKGROUND_TYPE_CHOICES = [

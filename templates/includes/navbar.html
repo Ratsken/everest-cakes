@@ -21,7 +21,7 @@
 
         <!-- Right Nav -->
         <div class="flex items-center space-x-6">
-            <a href="tel:{{ BUSINESS_PHONE }}" class="hidden md:block font-sans text-[18px] uppercase tracking-[0.2em] border-b border-gold pb-1 text-brand-primary hover:text-gold transition-colors">Order Now</a>
+            <a href="{% url 'products:list' %}" class="hidden md:block font-sans text-[18px] uppercase tracking-[0.2em] border-b border-gold pb-1 text-brand-primary hover:text-gold transition-colors">Order Now</a>
             
             <!-- Cart -->
             <button onclick="openCart()" class="relative p-2 text-brand-dark hover:text-gold transition-colors">

@@ -167,7 +167,7 @@ UNFOLD = {
                     {"title": "Products", "icon": "shopping_bag", "link": "/admin/products/product/"},
                     {"title": "Categories", "icon": "category", "link": "/admin/products/category/"},
                     {"title": "Attributes", "icon": "settings", "link": "/admin/products/productattribute/"},
-                    {"title": "Addons", "icon": "plus_circle", "link": "/admin/products/productaddon/"},
+                    {"title": "Addons", "icon": "add_circle", "link": "/admin/products/productaddon/"},
                     {"title": "Orders", "icon": "receipt", "link": "/admin/orders/order/"},
                     {"title": "Enquiries", "icon": "mail", "link": "/admin/orders/enquiry/"},
                 ]
@@ -185,7 +185,7 @@ UNFOLD = {
                 "title": "Settings",
                 "items": [
                     {"title": "Site Settings", "icon": "settings", "link": "/admin/core/sitesetting/"},
-                    {"title": "Users", "icon": "people", "link": "/admin/auth/user/"},
+                    {"title": "Users", "icon": "people", "link": "/admin/core/user/"},
                 ]
             },
         ]

@@ -1,5 +1,7 @@
 from django.contrib import admin
-from django.utils.html import format_html
+from django.utils.html import format_html, conditional_escape
+from django.utils.safestring import mark_safe
+from django.utils.safestring import mark_safe
 from unfold.admin import ModelAdmin, TabularInline
 from unfold.decorators import action, display
 from import_export.admin import ImportExportModelAdmin
@@ -38,7 +40,7 @@ class OrderAdmin(ImportExportModelAdmin, ModelAdmin):
                    'email_sent', 'whatsapp_sent']
     search_fields = ['order_number', 'customer_name', 'customer_phone', 'customer_email']
     readonly_fields = ['order_number', 'created_at', 'updated_at', 'paid_at', 'item_count',
-                       'email_sent', 'whatsapp_sent']
+                       'email_sent', 'whatsapp_sent', 'items_display']
     date_hierarchy = 'created_at'
     
     fieldsets = (
@@ -57,7 +59,7 @@ class OrderAdmin(ImportExportModelAdmin, ModelAdmin):
             'classes': ('collapse',),
         }),
         ('Order Items', {
-            'fields': ('items', 'item_count'),
+            'fields': ('items_display', 'item_count'),
         }),
         ('Pricing', {
             'fields': ('subtotal', 'delivery_fee', 'discount', 'total')
@@ -78,6 +80,79 @@ class OrderAdmin(ImportExportModelAdmin, ModelAdmin):
     )
     
     inlines = [OrderTrackingInline, PaymentTransactionInline, OrderAttachmentInline]
+
+    @display(description='Order Items')
+    def items_display(self, obj):
+        items = obj.items or []
+        if not items:
+            return format_html('<p style="color:#999;">No items recorded.</p>')
+
+        rows = []
+        for idx, item in enumerate(items):
+            name = conditional_escape(item.get('name', '\u2014'))
+            variant = conditional_escape(item.get('variant_name', '') or '')
+            qty = int(item.get('quantity', 1))
+            base_price = conditional_escape(str(item.get('base_price', '0.00')))
+            unit_price = conditional_escape(str(item.get('unit_price', '0.00')))
+            total_price = conditional_escape(str(item.get('total_price', item.get('total', '0.00'))))
+            custom_message = conditional_escape(item.get('custom_message', '') or '')
+            special_instructions = conditional_escape(item.get('special_instructions', '') or '')
+
+            # Attributes
+            attr_parts = []
+            for attr in item.get('attributes', []):
+                attr_name = conditional_escape(attr.get('attribute', attr.get('name', '')))
+                opt = conditional_escape(attr.get('option', ''))
+                adj = attr.get('price_adjustment', '0.00')
+                try:
+                    adj_val = float(adj or 0)
+                except (ValueError, TypeError):
+                    adj_val = 0
+                adj_str = mark_safe(f' <span style="color:#888;font-size:11px;">(+KSh {conditional_escape(str(adj))})</span>') if adj_val > 0 else ''
+                attr_parts.append(mark_safe(f'<li style="margin:2px 0;"><strong>{attr_name}:</strong> {opt}{adj_str}</li>'))
+            attr_html = mark_safe(''.join(str(p) for p in attr_parts))
+
+            # Addons
+            addon_parts = []
+            for addon in item.get('addons', []):
+                addon_name = conditional_escape(addon.get('name', ''))
+                addon_price = addon.get('price', '0.00')
+                try:
+                    addon_price_val = float(addon_price or 0)
+                except (ValueError, TypeError):
+                    addon_price_val = 0
+                addon_qty = int(addon.get('quantity', 1))
+                addon_total = conditional_escape(str(addon.get('total', '0.00')))
+                price_str = mark_safe(f'KSh {conditional_escape(str(addon_price))}') if addon_price_val > 0 else mark_safe('Free')
+                addon_parts.append(mark_safe(
+                    f'<li style="margin:2px 0;">{addon_name} &times;{addon_qty} \u2014 {price_str}'
+                    f' <span style="color:#888;font-size:11px;">(KSh {addon_total})</span></li>'
+                ))
+            addon_html = mark_safe(''.join(str(p) for p in addon_parts))
+
+            variant_str = mark_safe(f'<span style="color:#666;margin-left:8px;font-size:12px;">{variant}</span>') if variant else ''
+            msg_str = mark_safe(f'<p style="margin:4px 0;color:#555;"><em>Message: {custom_message}</em></p>') if custom_message else ''
+            instr_str = mark_safe(f'<p style="margin:4px 0;color:#555;"><em>Note: {special_instructions}</em></p>') if special_instructions else ''
+            attr_block = mark_safe(f'<ul style="margin:8px 0 4px 0;padding-left:18px;font-size:13px;">{attr_html}</ul>') if attr_html else ''
+            addon_block = mark_safe(
+                f'<div style="margin-top:6px;"><span style="font-size:12px;font-weight:600;color:#555;">Add-ons:</span>'
+                f'<ul style="margin:2px 0;padding-left:18px;font-size:13px;">{addon_html}</ul></div>'
+            ) if addon_html else ''
+
+            rows.append(mark_safe(
+                f'<div style="border:1px solid #e0e0e0;border-radius:8px;padding:14px;margin-bottom:12px;background:#fafafa;">'
+                f'<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">'
+                f'<div><span style="font-size:15px;font-weight:600;color:#1a1a1a;">{name}</span>{variant_str}'
+                f'<span style="display:inline-block;margin-left:10px;background:#f0f0f0;border-radius:4px;padding:1px 8px;font-size:12px;color:#555;">Qty: {qty}</span></div>'
+                f'<div style="text-align:right;">'
+                f'<div style="font-size:12px;color:#888;">Base: KSh {base_price} &nbsp;|&nbsp; Unit: KSh {unit_price}</div>'
+                f'<div style="font-size:14px;font-weight:700;color:#1a5e1a;">Line Total: KSh {total_price}</div>'
+                f'</div></div>'
+                f'{attr_block}{addon_block}{msg_str}{instr_str}'
+                f'</div>'
+            ))
+
+        return mark_safe('<div style="max-width:700px;">' + ''.join(str(r) for r in rows) + '</div>')
     
     @display(description='Payment')
     def payment_status_badge(self, obj):

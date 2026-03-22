@@ -1,14 +1,30 @@
 {% extends 'base.html' %}
 
-{% block title %}Shop All Cakes | {{ BUSINESS_NAME }}{% endblock %}
+{% block title %}{% if current_category and category %}{{ category.meta_title|default:category.name }} | {{ BUSINESS_NAME }}{% else %}Shop All Cakes | {{ BUSINESS_NAME }}{% endif %}{% endblock %}
+
+{% block description %}{% if current_category and category %}{{ category.meta_description|default:category.description|truncatechars:160 }}{% else %}Handcrafted cakes for every occasion — browse our full collection at {{ BUSINESS_NAME }}.{% endif %}{% endblock %}
+
+{% block og_title %}{% if current_category and category %}{{ category.meta_title|default:category.name }} | {{ BUSINESS_NAME }}{% else %}Shop All Cakes | {{ BUSINESS_NAME }}{% endif %}{% endblock %}
+
+{% block og_description %}{% if current_category and category %}{{ category.meta_description|default:category.description|truncatechars:200 }}{% else %}Handcrafted cakes for every occasion — browse our full collection at {{ BUSINESS_NAME }}.{% endif %}{% endblock %}
+
+{% block og_image %}{% if current_category and category and category.image %}{{ SITE_URL }}{{ category.image.url }}{% else %}{{ SITE_URL }}/static/images/og-default.jpg{% endif %}{% endblock %}
 
 {% block content %}
 <div class="pt-24 pb-16 bg-brand-cream min-h-screen">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
         <div class="text-center mb-12">
+            {% if current_category and category %}
+            <p class="text-gold font-sans text-xs tracking-[0.3em] uppercase mb-3">Browse Collection</p>
+            <h1 class="text-4xl md:text-5xl font-serif font-bold text-charcoal">{{ category.name }}</h1>
+            {% if category.description %}
+            <p class="text-gray-600 mt-2 max-w-xl mx-auto">{{ category.description|truncatechars:120 }}</p>
+            {% endif %}
+            {% else %}
             <h1 class="text-4xl md:text-5xl font-serif font-bold text-charcoal">Our Cakes</h1>
             <p class="text-gray-600 mt-2">Handcrafted with love for your special moments</p>
+            {% endif %}
         </div>
         
         <div class="flex flex-col lg:flex-row gap-8">

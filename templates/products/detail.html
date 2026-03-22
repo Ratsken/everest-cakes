@@ -1,7 +1,12 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ product.name }} | {{ BUSINESS_NAME }}{% endblock %}
-{% block description %}{{ product.short_description|truncatechars:160 }}{% endblock %}
+{% block title %}{{ product.meta_title|default:product.name }} | {{ BUSINESS_NAME }}{% endblock %}
+{% block description %}{{ product.meta_description|default:product.short_description|default:product.description|truncatechars:160 }}{% endblock %}
+
+{% block og_title %}{{ og_title }} | {{ BUSINESS_NAME }}{% endblock %}
+{% block og_description %}{{ og_description|truncatechars:200 }}{% endblock %}
+{% block og_type %}product{% endblock %}
+{% block og_image %}{% if og_image %}{{ SITE_URL }}{{ og_image }}{% else %}{{ SITE_URL }}/static/images/og-default.jpg{% endif %}{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 py-8">

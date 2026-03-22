@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
-from django.db.models import Q
+from django.db.models import Q, Min
 
 from .models import Page, HeroSection, FeaturedCard, Testimonial
 from apps.products.models import Product, Category
@@ -39,8 +39,24 @@ class HomeView(TemplateView):
             is_available=True
         )[:4]
         
-        # Categories
-        context['categories'] = Category.objects.filter(is_active=True).order_by('order')[:6]
+        # Categories — annotated with cheapest available product price
+        context['categories'] = (
+            Category.objects.filter(is_active=True)
+            .annotate(min_price=Min('products__base_price'))
+            .order_by('order')[:6]
+        )
+
+        # Primary hero's linked category min-price for the floating badge
+        primary_hero = context.get('primary_hero')
+        if primary_hero and primary_hero.linked_category_id:
+            linked_cat = (
+                Category.objects.filter(pk=primary_hero.linked_category_id)
+                .annotate(min_price=Min('products__base_price'))
+                .first()
+            )
+            context['hero_category'] = linked_cat
+        else:
+            context['hero_category'] = None
         
         # Testimonials
         context['testimonials'] = Testimonial.objects.filter(

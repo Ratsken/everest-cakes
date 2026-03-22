@@ -38,6 +38,14 @@ class Category(models.Model):
     def product_count(self):
         return self.products.filter(is_available=True).count()
 
+    def save(self, *args, **kwargs):
+        # Auto-generate SEO fields from name/description if not explicitly provided
+        if not self.meta_title:
+            self.meta_title = self.name[:200]
+        if not self.meta_description:
+            self.meta_description = (self.description or self.name)[:300]
+        super().save(*args, **kwargs)
+
 
 class ProductAttribute(models.Model):
     """Product Attributes like Flavor, Frosting, Shape, etc."""
@@ -245,6 +253,25 @@ class Product(models.Model):
         """Get available addons for this product"""
         return self.addons.filter(is_available=True).order_by('order')
     
+    def save(self, *args, **kwargs):
+        # Auto-generate SEO/OG fields from name/description if not explicitly provided
+        update_fields = kwargs.get('update_fields')
+        if update_fields is None or 'meta_title' in update_fields:
+            if not self.meta_title:
+                self.meta_title = self.name[:200]
+        if update_fields is None or 'meta_description' in update_fields:
+            if not self.meta_description:
+                desc = self.short_description or self.description or self.name
+                self.meta_description = desc[:300]
+        if update_fields is None or 'og_title' in update_fields:
+            if not self.og_title:
+                self.og_title = self.name[:200]
+        if update_fields is None or 'og_description' in update_fields:
+            if not self.og_description:
+                desc = self.short_description or self.description or self.name
+                self.og_description = desc[:300]
+        super().save(*args, **kwargs)
+
     def update_rating(self):
         reviews = self.reviews.all()
         if reviews:

@@ -50,7 +50,10 @@ class ProductListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.filter(is_active=True).order_by('order')
-        context['current_category'] = self.request.GET.get('category')
+        current_category_slug = self.request.GET.get('category')
+        context['current_category'] = current_category_slug
+        if current_category_slug:
+            context['category'] = Category.objects.filter(slug=current_category_slug, is_active=True).first()
         context['current_sort'] = self.request.GET.get('sort', '-created_at')
         context['min_price'] = self.request.GET.get('min_price', '')
         context['max_price'] = self.request.GET.get('max_price', '')
