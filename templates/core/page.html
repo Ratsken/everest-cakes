@@ -7,7 +7,7 @@
 <div class="pt-24 pb-16 bg-brand-cream min-h-screen">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="mb-8">
-            <img src="{% if page and page.hero_image %}{{ page.hero_image.url }}{% else %}{{ SITE_URL }}/static/images/og-default.jpg{% endif %}" alt="{% if page and page.hero_image_alt %}{{ page.hero_image_alt }}{% else %}{{ page.title }}{% endif %}" class="w-full rounded-2xl shadow-lg object-cover h-64">
+            <img src="{% if page and page.hero_image %}{{ page.hero_image.url }}{% else %}{{ SITE_URL }}/static/images/hero-placeholder.svg{% endif %}" alt="{% if page and page.hero_image_alt %}{{ page.hero_image_alt }}{% else %}{{ page.title }}{% endif %}" class="w-full rounded-2xl shadow-lg object-cover h-64">
         </div>
 
         <div class="bg-white rounded-2xl p-8 md:p-12">
