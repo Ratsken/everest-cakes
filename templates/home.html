@@ -6,125 +6,240 @@
 
 {% block content %}
 <!-- Hero Section -->
-{% if hero_sections %}
-{% for hero in hero_sections %}
-{% include 'partials/hero_section.html' with hero=hero %}
-{% empty %}
-<!-- Default Hero -->
-<section class="relative min-h-screen flex items-center justify-center overflow-hidden">
-    <div class="absolute inset-0 bg-gradient-to-br from-charcoal via-charcoal-light to-charcoal"></div>
-    <div class="absolute inset-0 opacity-20">
-        <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=1920" 
-             alt="Luxury Cake" class="w-full h-full object-cover">
-    </div>
-    <div class="absolute inset-0 bg-black/40"></div>
-    
-    <div class="relative z-10 max-w-5xl mx-auto px-4 text-center">
-        <h1 class="text-5xl md:text-7xl lg:text-8xl font-serif font-bold text-white mb-6 animate-fade-in-up">
-            <span class="text-gold">Everest</span> Cakes
-        </h1>
-        <p class="text-xl md:text-2xl text-white/80 mb-8 max-w-2xl mx-auto animate-fade-in-up" style="animation-delay: 0.2s;">
-            Bespoke, artisanal cakes for every occasion. You need it... we bake it.
-        </p>
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style="animation-delay: 0.4s;">
-            <a href="{% url 'products:list' %}" class="btn-primary px-8 py-3 rounded-full text-lg font-medium">
-                Order Now
-            </a>
-            <a href="{% url 'core:about' %}" class="border-2 border-white/50 text-white px-8 py-3 rounded-full text-lg font-medium hover:bg-white hover:text-charcoal transition-all">
-                Our Story
-            </a>
-        </div>
-    </div>
-    
-    <!-- Scroll Indicator -->
-    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-        <i data-lucide="chevron-down" class="w-8 h-8 text-white/50"></i>
-    </div>
-</section>
-{% endfor %}
-{% else %}
-<!-- Default Hero if no hero sections configured -->
-<section class="relative min-h-screen flex items-center justify-center overflow-hidden">
-    <div class="absolute inset-0 bg-gradient-to-br from-charcoal via-charcoal-light to-charcoal"></div>
-    <div class="absolute inset-0 opacity-20">
-        <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=1920" 
-             alt="Luxury Cake" class="w-full h-full object-cover">
-    </div>
-    <div class="absolute inset-0 bg-black/40"></div>
-    
-    <div class="relative z-10 max-w-5xl mx-auto px-4 text-center">
-        <h1 class="text-5xl md:text-7xl lg:text-8xl font-serif font-bold text-white mb-6 animate-fade-in-up">
-            <span class="text-gold">Everest</span> Cakes
-        </h1>
-        <p class="text-xl md:text-2xl text-white/80 mb-8 max-w-2xl mx-auto animate-fade-in-up" style="animation-delay: 0.2s;">
-            Bespoke, artisanal cakes for every occasion in Thika. You need it... we bake it.
-        </p>
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style="animation-delay: 0.4s;">
-            <a href="{% url 'products:list' %}" class="btn-primary px-8 py-3 rounded-full text-lg font-medium">
-                Order Now
-            </a>
-            <a href="{% url 'core:about' %}" class="border-2 border-white/50 text-white px-8 py-3 rounded-full text-lg font-medium hover:bg-white hover:text-charcoal transition-all">
-                Our Story
-            </a>
+<section class="relative pt-40 pb-20 lg:pt-56 lg:pb-32 overflow-hidden">
+    <div class="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div class="reveal">
+                <div class="flex items-center space-x-4 mb-6">
+                    <span class="w-12 h-[1px] bg-gold"></span>
+                    <span class="text-gold uppercase tracking-[0.3em] text-[10px] font-sans">Premium Bakery Thika</span>
+                </div>
+                <h1 class="text-5xl lg:text-[6rem] font-serif leading-[0.85] text-brand-dark mb-8">
+                    Treat yourself to<br> 
+                    <span class="italic font-light text-brand-accent">decadent</span> moments.
+                </h1>
+                <p class="text-gray-600 font-sans font-light max-w-md mb-10 text-lg leading-relaxed">
+                    We take pride in our commitment to using only the freshest ingredients and making our desserts from scratch.
+                </p>
+                <div class="flex items-center space-x-8">
+                    <a href="{% url 'products:list' %}" class="btn-primary px-10 py-5 font-sans text-xs uppercase tracking-widest transform hover:-translate-y-1 transition-all">
+                        Explore Menu
+                    </a>
+                    <div class="flex -space-x-3">
+                        <img src="https://i.pravatar.cc/100?u=1" class="w-10 h-10 rounded-full border-2 border-cream">
+                        <img src="https://i.pravatar.cc/100?u=2" class="w-10 h-10 rounded-full border-2 border-cream">
+                        <img src="https://i.pravatar.cc/100?u=3" class="w-10 h-10 rounded-full border-2 border-cream">
+                        <div class="w-10 h-10 rounded-full bg-gold flex items-center justify-center text-[10px] text-white font-bold border-2 border-cream">+800</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="relative reveal delay-200">
+                <div class="arch-image overflow-hidden aspect-[4/5] shadow-2xl relative">
+                    {% if hero_sections and hero_sections.first.image %}
+                    <img src="{{ hero_sections.first.image.url }}" alt="Decadent Cake" class="w-full h-full object-cover transform transition duration-1000 hover:scale-110">
+                    {% else %}
+                    <img src="https://images.unsplash.com/photo-1535141192574-5d4897c825a0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Decadent Cake" class="w-full h-full object-cover transform transition duration-1000 hover:scale-110">
+                    {% endif %}
+                </div>
+                <!-- Floating Price Badge -->
+                <div class="absolute -bottom-6 -left-6 bg-white p-6 shadow-xl rounded-lg max-w-[180px]">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-[10px] uppercase tracking-widest text-gray-400">Signature</span>
+                        <div class="flex text-gold">
+                            <i data-lucide="star" class="w-3 h-3 fill-current"></i>
+                            <i data-lucide="star" class="w-3 h-3 fill-current"></i>
+                            <i data-lucide="star" class="w-3 h-3 fill-current"></i>
+                        </div>
+                    </div>
+                    <p class="font-serif text-lg text-brand-dark leading-tight">Velvet Cream Cake</p>
+                    <p class="text-brand-accent font-sans font-bold text-sm mt-2">Ksh 3,500</p>
+                </div>
+            </div>
         </div>
     </div>
 </section>
-{% endif %}
 
-<!-- Featured Cards -->
-{% if featured_cards %}
-<section class="py-16 bg-brand-cream">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {% for card in featured_cards %}
-            <div class="bg-white rounded-2xl p-8 {{ card.animation_type }} transition-all duration-300"
-                 style="background-color: {{ card.background_color }}; color: {{ card.text_color }}; border: 1px solid {{ card.border_color }};">
-                {% if card.icon %}
-                <i data-lucide="{{ card.icon }}" class="w-10 h-10 mb-4 text-gold"></i>
-                {% elif card.image %}
-                <img src="{{ card.image.url }}" alt="{{ card.title }}" class="w-16 h-16 object-contain mb-4">
-                {% endif %}
-                <h3 class="text-xl font-serif font-semibold mb-2">{{ card.title }}</h3>
-                {% if card.subtitle %}
-                <p class="text-sm opacity-75 mb-2">{{ card.subtitle }}</p>
-                {% endif %}
-                <p class="text-sm opacity-75">{{ card.description }}</p>
-                {% if card.link %}
-                <a href="{{ card.link }}" class="inline-flex items-center gap-2 mt-4 text-sm font-medium hover:text-gold transition-colors">
-                    Learn More <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                </a>
-                {% endif %}
+<!-- Why Choose Us -->
+<section class="py-24 bg-cream-dark/30">
+    <div class="max-w-7xl mx-auto px-6 lg:px-12">
+        <div class="text-center mb-20 reveal">
+            <h2 class="font-serif text-4xl lg:text-5xl text-brand-dark">Why Choose <span class="italic">Us</span></h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div class="text-center p-8 bg-white/50 backdrop-blur rounded-2xl reveal delay-100">
+                <div class="w-16 h-16 bg-brand-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i data-lucide="palette" class="w-8 h-8 text-brand-primary"></i>
+                </div>
+                <h3 class="font-serif text-2xl mb-4">Personal Customizations</h3>
+                <p class="text-gray-500 font-sans font-light text-sm leading-relaxed">Every cake is a reflection of your unique style. We offer extensive options for any occasion.</p>
+            </div>
+            <div class="text-center p-8 bg-white/50 backdrop-blur rounded-2xl reveal delay-200">
+                <div class="w-16 h-16 bg-brand-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i data-lucide="award" class="w-8 h-8 text-brand-primary"></i>
+                </div>
+                <h3 class="font-serif text-2xl mb-4">Unparalleled Expertise</h3>
+                <p class="text-gray-500 font-sans font-light text-sm leading-relaxed">Years of expertise in creating delectable cakes with artistic precision and world-class flavor.</p>
+            </div>
+            <div class="text-center p-8 bg-white/50 backdrop-blur rounded-2xl reveal delay-300">
+                <div class="w-16 h-16 bg-brand-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i data-lucide="truck" class="w-8 h-8 text-brand-primary"></i>
+                </div>
+                <h3 class="font-serif text-2xl mb-4">Timely Delivery</h3>
+                <p class="text-gray-500 font-sans font-light text-sm leading-relaxed">We value your time. Our dedicated team ensures fresh delivery, right to your doorstep in Thika.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Category Gallery -->
+<section id="menu" class="py-24">
+    <div class="max-w-7xl mx-auto px-6 lg:px-12">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-16 reveal">
+            <div class="max-w-xl">
+                <h2 class="text-gold font-sans text-xs tracking-[0.3em] uppercase mb-4">Explore Our Selection</h2>
+                <h3 class="text-4xl md:text-5xl font-serif text-brand-dark">Cakes for every <span class="italic text-brand-accent">Milestone</span></h3>
+            </div>
+            <a href="{% url 'products:list' %}" class="mt-8 md:mt-0 font-sans text-xs uppercase tracking-widest text-brand-dark border-b border-brand-dark pb-2 hover:text-gold hover:border-gold transition-colors">Full Menu Book</a>
+        </div>
+
+        {% if categories %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for category in categories %}
+            <div class="category-card rounded-2xl overflow-hidden reveal delay-{{ forloop.counter }}00" {% if forloop.counter|divisibleby:2 %}style="margin-top: 2rem;"{% endif %}>
+                <div class="aspect-[3/4] relative">
+                    {% if category.image %}
+                    <img src="{{ category.image.url }}" alt="{{ category.name }}" class="w-full h-full object-cover">
+                    {% else %}
+                    <img src="https://images.unsplash.com/photo-1535254973040-607b474cb50d?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover">
+                    {% endif %}
+                    <div class="absolute inset-0 bg-gradient-to-t from-brand-dark/80 to-transparent flex flex-col justify-end p-8">
+                        <h4 class="text-white font-serif text-2xl mb-2">{{ category.name }}</h4>
+                        <p class="text-white/70 text-xs font-sans tracking-widest uppercase">{{ category.product_count }} Products</p>
+                        <a href="{{ category.get_absolute_url }}" class="mt-4 text-gold text-sm font-sans hover:underline">View Collection →</a>
+                    </div>
+                </div>
             </div>
             {% endfor %}
         </div>
+        {% else %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="category-card rounded-2xl overflow-hidden reveal delay-100">
+                <div class="aspect-[3/4] relative">
+                    <img src="https://images.unsplash.com/photo-1535254973040-607b474cb50d?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-brand-dark/80 to-transparent flex flex-col justify-end p-8">
+                        <h4 class="text-white font-serif text-2xl mb-2">Wedding Cakes</h4>
+                        <p class="text-white/70 text-xs font-sans tracking-widest uppercase">Bespoke Elegance</p>
+                    </div>
+                </div>
+            </div>
+            <div class="category-card rounded-2xl overflow-hidden mt-8 reveal delay-200">
+                <div class="aspect-[3/4] relative">
+                    <img src="https://images.unsplash.com/photo-1558301211-0d8c8ddee6ec?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-brand-dark/80 to-transparent flex flex-col justify-end p-8">
+                        <h4 class="text-white font-serif text-2xl mb-2">Birthday Cakes</h4>
+                        <p class="text-white/70 text-xs font-sans tracking-widest uppercase">Vibrant & Fun</p>
+                    </div>
+                </div>
+            </div>
+            <div class="category-card rounded-2xl overflow-hidden reveal delay-300">
+                <div class="aspect-[3/4] relative">
+                    <img src="https://images.unsplash.com/photo-1519340333755-56e9c1d04579?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-brand-dark/80 to-transparent flex flex-col justify-end p-8">
+                        <h4 class="text-white font-serif text-2xl mb-2">Pastry Boxes</h4>
+                        <p class="text-white/70 text-xs font-sans tracking-widest uppercase">Daily Delights</p>
+                    </div>
+                </div>
+            </div>
+            <div class="category-card rounded-2xl overflow-hidden mt-8 reveal delay-400">
+                <div class="aspect-[3/4] relative">
+                    <img src="https://images.unsplash.com/photo-1621303837174-89787a7d4729?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-brand-dark/80 to-transparent flex flex-col justify-end p-8">
+                        <h4 class="text-white font-serif text-2xl mb-2">Corporate Events</h4>
+                        <p class="text-white/70 text-xs font-sans tracking-widest uppercase">Professional & Grand</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </section>
-{% endif %}
 
-<!-- Featured Products -->
-{% include 'partials/featured_products.html' %}
-
-<!-- Category Gallery -->
-{% include 'partials/category_gallery.html' %}
+<!-- Pricing Section -->
+<section class="py-24 bg-brand-dark text-cream overflow-hidden">
+    <div class="max-w-7xl mx-auto px-6 lg:px-12">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-20">
+            <div class="reveal">
+                <h3 class="font-serif text-5xl mb-12">Standard Sizes <br>& <span class="italic text-gold">Pricing</span></h3>
+                <div class="space-y-8">
+                    <div class="flex justify-between items-center border-b border-white/10 pb-4">
+                        <div>
+                            <h4 class="font-serif text-2xl">The Mini Celebration</h4>
+                            <p class="text-xs text-gray-400 font-sans tracking-widest uppercase mt-1">1kg • Serves 4-6</p>
+                        </div>
+                        <span class="text-gold font-sans text-lg">Ksh 2,500</span>
+                    </div>
+                    <div class="flex justify-between items-center border-b border-white/10 pb-4">
+                        <div>
+                            <h4 class="font-serif text-2xl">The Family Classic</h4>
+                            <p class="text-xs text-gray-400 font-sans tracking-widest uppercase mt-1">2kg • Serves 10-12</p>
+                        </div>
+                        <span class="text-gold font-sans text-lg">Ksh 4,500</span>
+                    </div>
+                    <div class="flex justify-between items-center border-b border-white/10 pb-4">
+                        <div>
+                            <h4 class="font-serif text-2xl">Grand Occasion</h4>
+                            <p class="text-xs text-gray-400 font-sans tracking-widest uppercase mt-1">3kg+ • Custom tiers</p>
+                        </div>
+                        <span class="text-gold font-sans text-lg">From Ksh 6,500</span>
+                    </div>
+                </div>
+                <p class="mt-12 text-gray-400 text-sm italic font-sans">*Prices may vary based on flavor complexity and intricate decor.</p>
+            </div>
+            <div class="relative reveal delay-200">
+                {% if featured_products %}
+                <div class="grid grid-cols-2 gap-4">
+                    {% for product in featured_products|slice:":2" %}
+                    {% if product.featured_image %}
+                    <img src="{{ product.featured_image.url }}" alt="{{ product.name }}" class="rounded-xl {% if forloop.counter == 2 %}mt-8{% endif %} aspect-square object-cover">
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="grid grid-cols-2 gap-4">
+                    <img src="https://images.unsplash.com/photo-1542826438-bd32f43d626f?auto=format&fit=crop&w=400&q=80" class="rounded-xl aspect-square object-cover">
+                    <img src="https://images.unsplash.com/photo-1562777717-dc6984f65a63?auto=format&fit=crop&w=400&q=80" class="rounded-xl aspect-square object-cover mt-8">
+                </div>
+                {% endif %}
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <a href="https://wa.me/{{ BUSINESS_WHATSAPP|slice:'1:' }}" class="bg-gold p-12 rounded-full text-brand-dark text-center transform -rotate-12 shadow-2xl hover:rotate-0 transition-transform">
+                        <span class="block font-serif text-3xl leading-none">Order</span>
+                        <span class="block font-sans text-[10px] uppercase tracking-widest mt-1">On WhatsApp</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <!-- Testimonials -->
 {% if testimonials %}
-<section class="py-20 bg-charcoal">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12">
-            <h2 class="text-4xl md:text-5xl font-serif font-bold text-white mb-4">What Our Customers Say</h2>
-            <p class="text-white/60 max-w-2xl mx-auto">Real stories from real customers who celebrated their special moments with us.</p>
+<section class="py-24 bg-cream">
+    <div class="max-w-7xl mx-auto px-6 lg:px-12">
+        <div class="text-center mb-16 reveal">
+            <h2 class="font-serif text-4xl lg:text-5xl text-brand-dark">What Our Customers <span class="italic text-brand-accent">Say</span></h2>
+            <p class="text-gray-500 mt-4 font-sans">Real stories from real customers who celebrated their special moments with us.</p>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             {% for testimonial in testimonials %}
-            <div class="bg-white/5 rounded-2xl p-6 reveal" style="animation-delay: {{ forloop.counter0 }}00ms;">
+            <div class="bg-white rounded-2xl p-8 reveal delay-{{ forloop.counter }}00 shadow-sm hover:shadow-xl transition-all">
                 <div class="flex items-center gap-1 mb-4">
                     {% for i in "12345" %}
                     <i data-lucide="star" class="w-4 h-4 text-gold {% if forloop.counter <= testimonial.rating %}fill-gold{% endif %}"></i>
                     {% endfor %}
                 </div>
-                <p class="text-white/80 mb-4 italic">"{{ testimonial.comment }}"</p>
+                <p class="text-gray-600 mb-6 italic font-sans text-sm leading-relaxed">"{{ testimonial.comment }}"</p>
                 <div class="flex items-center gap-3">
                     {% if testimonial.customer_photo %}
                     <img src="{{ testimonial.customer_photo.url }}" alt="{{ testimonial.customer_name }}" class="w-10 h-10 rounded-full object-cover">
@@ -134,9 +249,9 @@
                     </div>
                     {% endif %}
                     <div>
-                        <p class="text-white font-medium">{{ testimonial.customer_name }}</p>
+                        <p class="font-serif font-semibold text-brand-dark">{{ testimonial.customer_name }}</p>
                         {% if testimonial.occasion %}
-                        <p class="text-white/50 text-sm">{{ testimonial.occasion }}</p>
+                        <p class="text-gray-400 text-xs font-sans">{{ testimonial.occasion }}</p>
                         {% endif %}
                     </div>
                 </div>
@@ -147,56 +262,47 @@
 </section>
 {% endif %}
 
-<!-- CTA Section -->
-<section class="py-20 bg-gradient-to-br from-brand-accent to-brand-accent/80">
-    <div class="max-w-4xl mx-auto px-4 text-center">
-        <h2 class="text-4xl md:text-5xl font-serif font-bold text-white mb-4">Ready to Order?</h2>
-        <p class="text-white/80 text-lg mb-8 max-w-2xl mx-auto">
-            Let us create the perfect cake for your special occasion. Custom designs, premium ingredients, and delivery across Thika.
-        </p>
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a href="{% url 'products:list' %}" class="bg-white text-brand-accent px-8 py-3 rounded-full text-lg font-medium hover:bg-gold hover:text-charcoal transition-all">
-                Browse Cakes
-            </a>
-            <a href="https://wa.me/{{ site_settings.whatsapp_number|slice:'1:' }}" target="_blank" class="border-2 border-white text-white px-8 py-3 rounded-full text-lg font-medium hover:bg-white hover:text-brand-accent transition-all">
-                <span class="flex items-center gap-2">
-                    <i data-lucide="message-circle" class="w-5 h-5"></i>
-                    WhatsApp Us
-                </span>
-            </a>
+<!-- Location & Contact -->
+<section id="contact" class="py-24">
+    <div class="max-w-7xl mx-auto px-6 lg:px-12 text-center">
+        <div class="reveal">
+            <i data-lucide="map-pin" class="w-10 h-10 text-brand-accent mx-auto mb-6"></i>
+            <h3 class="text-4xl font-serif text-brand-dark mb-4">Visit Our Studio</h3>
+            <p class="text-gray-500 font-sans mb-12">{{ BUSINESS_ADDRESS }}</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-4xl mx-auto">
+                <div class="p-10 border border-brand-primary/10 rounded-3xl bg-white shadow-sm hover:shadow-xl transition-all">
+                    <h4 class="font-serif text-2xl mb-4">Direct Calls</h4>
+                    <div class="space-y-2 font-sans text-lg text-brand-dark">
+                        <a href="tel:{{ BUSINESS_PHONE }}" class="block hover:text-gold transition-colors">{{ BUSINESS_PHONE }}</a>
+                    </div>
+                </div>
+                <div class="p-10 border border-brand-primary/10 rounded-3xl bg-white shadow-sm hover:shadow-xl transition-all">
+                    <h4 class="font-serif text-2xl mb-4">Business Hours</h4>
+                    <div class="space-y-2 font-sans text-sm text-gray-500 tracking-wide">
+                        <p>MON - SAT: 8:00 AM - 7:00 PM</p>
+                        <p>SUN: 10:00 AM - 4:00 PM</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
-<!-- Instagram Feed -->
-<section class="py-16 bg-brand-cream">
-    <div class="max-w-7xl mx-auto px-4 text-center">
-        <h2 class="text-3xl font-serif font-bold text-charcoal mb-4">Follow Us on Instagram</h2>
-        {% if site_settings.instagram_url %}
-        <a href="{{ site_settings.instagram_url }}" target="_blank" class="text-brand-accent hover:text-gold transition-colors mb-8 inline-block">
-            @everestcakes
-        </a>
-        {% endif %}
-        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            <!-- Placeholder Instagram images -->
-            <div class="aspect-square rounded-lg overflow-hidden bg-gray-200">
-                <img src="https://images.unsplash.com/photo-1562440499-64c9a111f713?auto=format&fit=crop&w=300" alt="Cake" class="w-full h-full object-cover hover:scale-105 transition-transform">
-            </div>
-            <div class="aspect-square rounded-lg overflow-hidden bg-gray-200">
-                <img src="https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&w=300" alt="Cake" class="w-full h-full object-cover hover:scale-105 transition-transform">
-            </div>
-            <div class="aspect-square rounded-lg overflow-hidden bg-gray-200">
-                <img src="https://images.unsplash.com/photo-1565958011703-44f9829ba187?auto=format&fit=crop&w=300" alt="Cake" class="w-full h-full object-cover hover:scale-105 transition-transform">
-            </div>
-            <div class="aspect-square rounded-lg overflow-hidden bg-gray-200">
-                <img src="https://images.unsplash.com/photo-1586788680434-30d324b2d46f?auto=format&fit=crop&w=300" alt="Cake" class="w-full h-full object-cover hover:scale-105 transition-transform">
-            </div>
-            <div class="aspect-square rounded-lg overflow-hidden bg-gray-200 hidden md:block">
-                <img src="https://images.unsplash.com/photo-1535141192574-5d4897c12f4f?auto=format&fit=crop&w=300" alt="Cake" class="w-full h-full object-cover hover:scale-105 transition-transform">
-            </div>
-            <div class="aspect-square rounded-lg overflow-hidden bg-gray-200 hidden lg:block">
-                <img src="https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=300" alt="Cake" class="w-full h-full object-cover hover:scale-105 transition-transform">
-            </div>
+<!-- CTA Section -->
+<section class="py-20 bg-gradient-to-br from-brand-primary to-brand-dark">
+    <div class="max-w-4xl mx-auto px-6 text-center reveal">
+        <h2 class="text-4xl md:text-5xl font-serif font-bold text-white mb-4">Ready to Order?</h2>
+        <p class="text-white/80 text-lg mb-8 max-w-2xl mx-auto font-sans font-light">
+            Let us create the perfect cake for your special occasion. Custom designs, premium ingredients, and delivery across Thika.
+        </p>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a href="{% url 'products:list' %}" class="bg-gold text-brand-dark px-8 py-4 font-sans text-sm uppercase tracking-widest hover:bg-gold-light transition-all">
+                Browse Cakes
+            </a>
+            <a href="https://wa.me/{{ BUSINESS_WHATSAPP|slice:'1:' }}" target="_blank" class="border-2 border-white text-white px-8 py-4 font-sans text-sm uppercase tracking-widest hover:bg-white hover:text-brand-dark transition-all">
+                WhatsApp Us
+            </a>
         </div>
     </div>
 </section>
