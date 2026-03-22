@@ -188,8 +188,11 @@ class CheckoutView(View):
             order.save()
             order.deduct_stock_once()
         
-        # Send notifications (async)
-        send_order_notifications.delay(str(order.id))
+        # Send notifications (synchronously to avoid broker dependency)
+        try:
+            send_order_notifications(str(order.id))
+        except Exception:
+            logger.exception("Failed to send order notifications for %s", order.id)
         
         if request.htmx:
             return render(request, 'orders/partials/order_success.html', {'order': order})
@@ -281,8 +284,11 @@ def mpesa_callback(request):
                     description=f'Payment of KES {order.total} received via M-Pesa'
                 )
                 
-                # Send confirmation
-                send_order_notifications.delay(str(order.id))
+                # Send confirmation (synchronously)
+                try:
+                    send_order_notifications(str(order.id))
+                except Exception:
+                    logger.exception("Failed to send order notifications for %s", order.id)
                 
             else:
                 # Payment failed
@@ -368,8 +374,11 @@ class EnquiryView(View):
             enquiry.image = request.FILES['image']
             enquiry.save()
         
-        # Send notifications
-        send_enquiry_notifications.delay(str(enquiry.id))
+        # Send notifications (synchronously)
+        try:
+            send_enquiry_notifications(str(enquiry.id))
+        except Exception:
+            logger.exception("Failed to send enquiry notifications for %s", enquiry.id)
         
         if request.htmx:
             return render(request, 'orders/partials/enquiry_success.html', {'enquiry': enquiry})
@@ -407,6 +416,9 @@ def quick_enquiry(request):
         product=product
     )
     
-    send_enquiry_notifications.delay(str(enquiry.id))
+    try:
+        send_enquiry_notifications(str(enquiry.id))
+    except Exception:
+        logger.exception("Failed to send quick enquiry notifications for %s", enquiry.id)
     
     return JsonResponse({'success': True, 'message': 'Enquiry sent! We will contact you soon.'})

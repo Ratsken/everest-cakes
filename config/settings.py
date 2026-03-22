@@ -33,8 +33,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'django_htmx',
-    'django_celery_beat',
-    'django_celery_results',
+    
     'crispy_forms',
     'crispy_tailwind',
     'taggit',
@@ -112,13 +111,7 @@ CART_SESSION_ID = 'cart'
 SESSION_COOKIE_AGE = config('SESSION_COOKIE_AGE', default=1209600, cast=int)
 
 # Celery Configuration
-CELERY_BROKER_URL = REDIS_URL
-CELERY_RESULT_BACKEND = 'django-db'
-CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'Africa/Nairobi'
-CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+# Celery removed — notifications run synchronously by default
 
 # Media & Static Files
 STATIC_URL = '/static/'
@@ -277,18 +270,4 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Celery Beat Schedule
-CELERY_BEAT_SCHEDULE = {
-    'send-order-reminders': {
-        'task': 'apps.orders.tasks.send_payment_reminder',
-        'schedule': 3600,
-    },
-    'clean-expired-carts': {
-        'task': 'apps.cart.tasks.clean_expired_carts',
-        'schedule': 86400,
-    },
-    'daily-report': {
-        'task': 'apps.orders.tasks.generate_daily_report',
-        'schedule': 86400,
-    },
-}
+# Celery beat schedule removed — scheduled jobs should be handled by cron or Django management commands

@@ -1,4 +1,3 @@
-from celery import shared_task
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.conf import settings
 from django.utils import timezone
@@ -18,13 +17,25 @@ def send_order_notifications(order_id):
     try:
         order = Order.objects.get(id=order_id)
         
-        # Send email notifications
-        send_order_email_customer.delay(order_id)
-        send_order_email_admin.delay(order_id)
-        
-        # Send WhatsApp notifications
-        send_order_whatsapp_admin.delay(order_id)
-        send_order_whatsapp_customer.delay(order_id)
+        # Send email notifications (synchronously)
+        try:
+            send_order_email_customer(order_id)
+        except Exception:
+            logger.exception("Failed send_order_email_customer")
+        try:
+            send_order_email_admin(order_id)
+        except Exception:
+            logger.exception("Failed send_order_email_admin")
+
+        # Send WhatsApp notifications (synchronously)
+        try:
+            send_order_whatsapp_admin(order_id)
+        except Exception:
+            logger.exception("Failed send_order_whatsapp_admin")
+        try:
+            send_order_whatsapp_customer(order_id)
+        except Exception:
+            logger.exception("Failed send_order_whatsapp_customer")
         
         return {'status': 'success', 'order_id': str(order.id)}
         
@@ -33,7 +44,6 @@ def send_order_notifications(order_id):
         return {'status': 'error', 'error': str(e)}
 
 
-@shared_task
 def send_order_email_customer(order_id):
     """Send order confirmation email to customer"""
     from .models import Order
@@ -94,7 +104,6 @@ Everest Cakes Team
         return None
 
 
-@shared_task
 def send_order_email_admin(order_id):
     """Send order notification to admin"""
     from .models import Order
@@ -149,7 +158,6 @@ View in Admin: {settings.SITE_URL}/admin/orders/order/{order.id}/
         return None
 
 
-@shared_task
 def send_order_whatsapp_admin(order_id):
     """Send WhatsApp notification to admin about new order"""
     from .models import Order
@@ -206,7 +214,6 @@ View: {settings.SITE_URL}/admin/orders/order/{order.id}/
         return None
 
 
-@shared_task
 def send_order_whatsapp_customer(order_id):
     """Send WhatsApp confirmation to customer"""
     from .models import Order
@@ -260,7 +267,6 @@ Track your order: {settings.SITE_URL}/orders/track/?order_number={order.order_nu
         return None
 
 
-@shared_task
 def send_enquiry_notifications(enquiry_id):
     """Send enquiry notifications via email and WhatsApp"""
     from .models import Enquiry
@@ -268,11 +274,17 @@ def send_enquiry_notifications(enquiry_id):
     try:
         enquiry = Enquiry.objects.get(id=enquiry_id)
         
-        # Send email to admin
-        send_enquiry_email_admin.delay(enquiry_id)
-        
-        # Send WhatsApp to admin
-        send_enquiry_whatsapp_admin.delay(enquiry_id)
+        # Send email to admin (synchronously)
+        try:
+            send_enquiry_email_admin(enquiry_id)
+        except Exception:
+            logger.exception("Failed send_enquiry_email_admin")
+
+        # Send WhatsApp to admin (synchronously)
+        try:
+            send_enquiry_whatsapp_admin(enquiry_id)
+        except Exception:
+            logger.exception("Failed send_enquiry_whatsapp_admin")
         
         return {'status': 'success', 'enquiry_id': str(enquiry.id)}
         
@@ -281,7 +293,6 @@ def send_enquiry_notifications(enquiry_id):
         return {'status': 'error', 'error': str(e)}
 
 
-@shared_task
 def send_enquiry_email_admin(enquiry_id):
     """Send enquiry email to admin"""
     from .models import Enquiry
@@ -325,7 +336,6 @@ Reply to: {enquiry.email}
         return None
 
 
-@shared_task
 def send_enquiry_whatsapp_admin(enquiry_id):
     """Send WhatsApp notification about enquiry"""
     from .models import Enquiry
@@ -375,7 +385,6 @@ def send_enquiry_whatsapp_admin(enquiry_id):
         return None
 
 
-@shared_task
 def send_payment_reminder(order_id):
     """Send payment reminder"""
     from .models import Order
@@ -429,7 +438,6 @@ Thank you! 🙏
         return None
 
 
-@shared_task
 def generate_daily_report():
     """Generate daily order report"""
     from .models import Order

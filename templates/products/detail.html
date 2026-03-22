@@ -43,13 +43,7 @@
 <div class="max-w-7xl mx-auto px-4 py-8">
     <!-- Narrow Hero (breadcrumb + title) -->
     <div class="mb-6">
-        {% if product.featured_image %}
-        <div class="bg-cover bg-center h-36 md:h-44 rounded-xl overflow-hidden" style="background-image: url('{{ product.featured_image.url }}')">
-        {% elif product.all_images|length > 0 %}
-        <div class="bg-cover bg-center h-36 md:h-44 rounded-xl overflow-hidden" style="background-image: url('{{ product.all_images.0 }}')">
-        {% else %}
-        <div class="bg-brand-cream h-36 md:h-44 rounded-xl overflow-hidden">
-        {% endif %}
+        <div class="bg-cover bg-center h-36 md:h-44 rounded-xl overflow-hidden" style="background-image: url('{% if product.featured_image %}{{ product.featured_image.url }}{% elif product.all_images|length > 0 %}{{ product.all_images.0 }}{% else %}{{ SITE_URL }}/static/images/og-default.jpg{% endif %}')">
             <div class="h-full w-full bg-black/28 flex items-center">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-white">
                     <nav class="text-sm text-white/80 mb-1">

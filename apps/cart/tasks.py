@@ -1,9 +1,7 @@
-from celery import shared_task
 from django.utils import timezone
 from datetime import timedelta
 
 
-@shared_task
 def clean_expired_carts():
     """Remove expired carts older than 30 days"""
     from .models import Cart

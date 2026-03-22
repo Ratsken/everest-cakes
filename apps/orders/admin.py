@@ -208,9 +208,13 @@ class OrderAdmin(ImportExportModelAdmin, ModelAdmin):
         from .tasks import send_order_notifications
         count = 0
         for order in queryset:
-            send_order_notifications.delay(str(order.id))
+            try:
+                send_order_notifications(str(order.id))
+            except Exception:
+                import logging
+                logging.getLogger(__name__).exception("Failed to send notifications for order %s", order.id)
             count += 1
-        self.message_user(request, f"Notifications queued for {count} orders.")
+        self.message_user(request, f"Notifications triggered for {count} orders.")
     
     @action(description="Export Orders CSV", url_path="export-orders")
     def export_orders(self, request, queryset):
@@ -294,6 +298,10 @@ class EnquiryAdmin(ModelAdmin):
         from .tasks import send_enquiry_notifications
         count = 0
         for enquiry in queryset.filter(status='new'):
-            send_enquiry_notifications.delay(str(enquiry.id))
+            try:
+                send_enquiry_notifications(str(enquiry.id))
+            except Exception:
+                import logging
+                logging.getLogger(__name__).exception("Failed to send enquiry notifications for %s", enquiry.id)
             count += 1
-        self.message_user(request, f"Notifications queued for {count} enquiries.")
+        self.message_user(request, f"Notifications triggered for {count} enquiries.")
