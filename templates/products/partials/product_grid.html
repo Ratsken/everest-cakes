@@ -1,5 +1,13 @@
 <!-- Product Grid Partial (HTMX) -->
 {% if products %}
+<div class="flex items-center justify-between mb-4">
+    {% if products.paginator %}
+    <p class="text-gray-600">Showing {{ products.start_index }}&ndash;{{ products.end_index }} of {{ products.paginator.count }} {% if products.paginator.count == 1 %}product{% else %}products{% endif %}</p>
+    {% else %}
+    <p class="text-gray-600">Showing {{ products|length }} {% if products|length == 1 %}product{% else %}products{% endif %}</p>
+    {% endif %}
+</div>
+
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
     {% for product in products %}
     {% include 'includes/product_card.html' with product=product %}

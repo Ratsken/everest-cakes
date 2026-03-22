@@ -13,18 +13,33 @@
 {% block content %}
 <div class="pt-24 pb-16 bg-brand-cream min-h-screen">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="text-center mb-12">
-            {% if current_category and category %}
-            <p class="text-gold font-sans text-xs tracking-[0.3em] uppercase mb-3">Browse Collection</p>
-            <h1 class="text-4xl md:text-5xl font-serif font-bold text-charcoal">{{ category.name }}</h1>
-            {% if category.description %}
-            <p class="text-gray-600 mt-2 max-w-xl mx-auto">{{ category.description|truncatechars:120 }}</p>
-            {% endif %}
-            {% else %}
-            <h1 class="text-4xl md:text-5xl font-serif font-bold text-charcoal">Our Cakes</h1>
-            <p class="text-gray-600 mt-2">Handcrafted with love for your special moments</p>
-            {% endif %}
+        <!-- Narrow Hero (breadcrumbs + title) -->
+        <div class="mb-6">
+            <div class="rounded-xl overflow-hidden">
+                {% if current_category and category and category.image %}
+                <div class="bg-cover bg-center h-36 md:h-44" style="background-image: url('{{ SITE_URL }}{{ category.image.url }}')">
+                {% else %}
+                <div class="bg-brand-cream h-36 md:h-44">
+                {% endif %}
+                    <div class="h-full w-full bg-black/30 flex items-center">
+                        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-white">
+                            <nav class="text-sm text-white/80 mb-1">
+                                <a href="{% url 'core:home' %}" class="hover:underline">Home</a>
+                                <span class="mx-2">/</span>
+                                <a href="{% url 'products:list' %}" class="hover:underline">Shop</a>
+                                {% if current_category and category %}
+                                <span class="mx-2">/</span>
+                                <span class="font-medium">{{ category.name }}</span>
+                                {% endif %}
+                            </nav>
+                            <h1 class="text-2xl md:text-3xl font-serif font-bold">{% if current_category and category %}{{ category.name }}{% else %}Our Cakes{% endif %}</h1>
+                            {% if current_category and category and category.description %}
+                            <p class="text-sm text-white/80 mt-1">{{ category.description|truncatechars:120 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <div class="flex flex-col lg:flex-row gap-8">
@@ -124,9 +139,7 @@
             <div class="flex-1">
                 <!-- Sort & Results -->
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-                    <p class="text-gray-600">
-                        Showing {{ products.start_index }}&ndash;{{ products.end_index }} of {{ products.paginator.count }} {% if products.paginator.count == 1 %}product{% else %}products{% endif %}
-                    </p>
+                    <div></div>
                     <select name="sort" 
                             hx-get="{% url 'products:filter' %}"
                             hx-target="#product-grid"
