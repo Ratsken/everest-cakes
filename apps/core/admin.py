@@ -4,13 +4,21 @@ from unfold.admin import ModelAdmin, TabularInline
 from unfold.decorators import action, display
 from .models import User, SiteSetting, Page, HeroSection, FeaturedCard, Testimonial
 from django.contrib.sites.models import Site
+from django.contrib import admin as django_admin
+from django.contrib.admin.sites import AlreadyRegistered
 
 
-@admin.register(Site)
 class SiteAdmin(ModelAdmin):
     list_display = ['domain', 'name']
     search_fields = ['domain', 'name']
     readonly_fields = []
+
+
+try:
+    django_admin.site.register(Site, SiteAdmin)
+except AlreadyRegistered:
+    # Site is already registered by django.contrib.sites; skip re-registration
+    pass
 
 
 def environment_callback(request):
