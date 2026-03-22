@@ -1,7 +1,6 @@
 from django.db import models
 from django.urls import reverse
 from django.core.validators import MinValueValidator, MaxValueValidator
-from ckeditor.fields import RichTextField
 from taggit.managers import TaggableManager
 import uuid
 
@@ -135,7 +134,7 @@ class Product(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
-    description = RichTextField()
+    description = models.TextField()
     short_description = models.CharField(max_length=300, blank=True)
     
     # Category & Tags

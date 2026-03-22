@@ -37,8 +37,6 @@ INSTALLED_APPS = [
     'django_celery_results',
     'crispy_forms',
     'crispy_tailwind',
-    'ckeditor',
-    'ckeditor_uploader',
     'taggit',
     'allauth',
     'allauth.account',
@@ -130,16 +128,6 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# CKEditor Configuration
-CKEDITOR_UPLOAD_PATH = 'uploads/'
-CKEDITOR_CONFIGS = {
-    'default': {
-        'toolbar': 'full',
-        'height': 300,
-        'width': '100%',
-    },
-}
-
 # Django Unfold Configuration
 UNFOLD = {
     "SITE_TITLE": "Everest Cakes",
@@ -216,9 +204,8 @@ AUTHENTICATION_BACKENDS = [
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 SITE_ID = 1
 
 # Email Configuration

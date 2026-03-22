@@ -20,7 +20,6 @@ urlpatterns = [
     path('orders/', include('apps.orders.urls')),
     path('blog/', include('apps.blog.urls')),
     path('accounts/', include('allauth.urls')),
-    path('ckeditor/', include('ckeditor_uploader.urls')),
     
     # Sitemap and Robots
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),

@@ -1,6 +1,5 @@
 from django.db import models
 from django.urls import reverse
-from ckeditor.fields import RichTextField
 from taggit.managers import TaggableManager
 import uuid
 
@@ -30,7 +29,7 @@ class Post(models.Model):
     title = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
     excerpt = models.CharField(max_length=300, blank=True)
-    content = RichTextField()
+    content = models.TextField()
     
     # Category & Tags
     category = models.ForeignKey(BlogCategory, on_delete=models.CASCADE, related_name='posts', null=True, blank=True)

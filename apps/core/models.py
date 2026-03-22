@@ -3,7 +3,6 @@ from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import RegexValidator
 from django.urls import reverse
-from ckeditor.fields import RichTextField
 import uuid
 
 
@@ -98,7 +97,7 @@ class Page(models.Model):
     """CMS Pages"""
     title = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
-    content = RichTextField()
+    content = models.TextField()
     meta_description = models.TextField(blank=True)
     meta_keywords = models.CharField(max_length=200, blank=True)
     is_published = models.BooleanField(default=True)

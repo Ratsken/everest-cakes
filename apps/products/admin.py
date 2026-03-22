@@ -59,6 +59,7 @@ class ProductAttributeOptionInline(TabularInline):
 class ProductAttributeAdmin(ModelAdmin):
     list_display = ['name', 'slug', 'is_required', 'option_count', 'order']
     list_editable = ['order', 'is_required']
+    search_fields = ['name', 'slug', 'description']
     prepopulated_fields = {'slug': ['name']}
     inlines = [ProductAttributeOptionInline]
     
@@ -119,7 +120,7 @@ class ProductAdmin(ImportExportModelAdmin, ModelAdmin):
             'classes': ('tab',),
         }),
         ('Attributes & Addons', {
-            'fields': ('attributes', 'addons', 'enable_custom_message', 'max_message_length'),
+            'fields': ('addons', 'enable_custom_message', 'max_message_length'),
             'classes': ('tab',),
         }),
         ('Social Sharing', {
