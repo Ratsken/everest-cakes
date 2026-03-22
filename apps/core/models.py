@@ -99,6 +99,8 @@ class Page(models.Model):
     title = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
     content = models.TextField()
+    hero_image = models.ImageField(upload_to='pages/', blank=True)
+    hero_image_alt = models.CharField(max_length=255, blank=True, default='')
     meta_description = models.TextField(blank=True)
     meta_keywords = models.CharField(max_length=200, blank=True)
     is_published = models.BooleanField(default=True)

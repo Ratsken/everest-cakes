@@ -75,11 +75,34 @@ class SiteSettingAdmin(ModelAdmin):
 
 @admin.register(Page)
 class PageAdmin(ModelAdmin):
-    list_display = ['title', 'slug', 'is_published', 'show_in_footer', 'order']
+    list_display = ['title', 'slug', 'is_published', 'show_in_footer', 'order', 'preview']
     list_filter = ['is_published', 'show_in_footer']
     search_fields = ['title', 'content']
     prepopulated_fields = {'slug': ['title']}
     list_editable = ['order', 'is_published', 'show_in_footer']
+
+    fieldsets = (
+        ('Content', {
+            'fields': ('title', 'slug', 'content')
+        }),
+        ('Visual', {
+            'fields': ('hero_image', 'hero_image_alt')
+        }),
+        ('Settings', {
+            'fields': ('is_published', 'show_in_footer', 'order')
+        }),
+    )
+
+    @display(description='Preview')
+    def preview(self, obj):
+        if obj.hero_image:
+            alt = obj.hero_image_alt or obj.title or 'Image'
+            return format_html(
+                '<img src="{}" width="120" height="60" style="object-fit: cover; border-radius: 4px;" alt="{}" />',
+                obj.hero_image.url,
+                alt
+            )
+        return '-'
 
 
 @admin.register(HeroSection)

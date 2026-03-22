@@ -16,8 +16,13 @@
         <!-- Story Section -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
             <div>
+                {% if page and page.hero_image %}
+                <img src="{{ page.hero_image.url }}" 
+                     alt="{{ page.title|default:'Baker at work' }}" class="rounded-2xl shadow-lg">
+                {% else %}
                 <img src="https://images.unsplash.com/photo-1556217477-d325251ece38?auto=format&fit=crop&w=800" 
                      alt="Baker at work" class="rounded-2xl shadow-lg">
+                {% endif %}
             </div>
             <div>
                 <div class="prose prose-lg max-w-none text-gray-600 prose-headings:font-serif prose-headings:text-charcoal prose-strong:text-charcoal prose-a:text-brand-accent">
