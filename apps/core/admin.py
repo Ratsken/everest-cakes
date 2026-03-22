@@ -3,6 +3,14 @@ from django.utils.html import format_html
 from unfold.admin import ModelAdmin, TabularInline
 from unfold.decorators import action, display
 from .models import User, SiteSetting, Page, HeroSection, FeaturedCard, Testimonial
+from django.contrib.sites.models import Site
+
+
+@admin.register(Site)
+class SiteAdmin(ModelAdmin):
+    list_display = ['domain', 'name']
+    search_fields = ['domain', 'name']
+    readonly_fields = []
 
 
 def environment_callback(request):

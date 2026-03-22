@@ -185,6 +185,7 @@ UNFOLD = {
                 "title": "Settings",
                 "items": [
                     {"title": "Site Settings", "icon": "settings", "link": "/admin/core/sitesetting/"},
+                    {"title": "Sites", "icon": "language", "link": "/admin/sites/site/"},
                     {"title": "Users", "icon": "people", "link": "/admin/core/user/"},
                 ]
             },

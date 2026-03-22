@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST, require_GET
 from django.db.models import Q
 from django.core.paginator import Paginator
+from decimal import Decimal, InvalidOperation
 import json
 
 from .models import Product, Category, ProductReview
@@ -27,10 +28,24 @@ class ProductListView(ListView):
         # Price range filter
         min_price = self.request.GET.get('min_price')
         max_price = self.request.GET.get('max_price')
-        if min_price:
-            queryset = queryset.filter(base_price__gte=min_price)
-        if max_price:
-            queryset = queryset.filter(base_price__lte=max_price)
+        # Parse prices safely and ignore invalid values
+        try:
+            min_price_val = Decimal(min_price) if min_price not in (None, '') else None
+        except (InvalidOperation, TypeError):
+            min_price_val = None
+        try:
+            max_price_val = Decimal(max_price) if max_price not in (None, '') else None
+        except (InvalidOperation, TypeError):
+            max_price_val = None
+
+        # If both provided and min > max, swap them
+        if min_price_val is not None and max_price_val is not None and min_price_val > max_price_val:
+            min_price_val, max_price_val = max_price_val, min_price_val
+
+        if min_price_val is not None:
+            queryset = queryset.filter(base_price__gte=min_price_val)
+        if max_price_val is not None:
+            queryset = queryset.filter(base_price__lte=max_price_val)
         
         # Features filter
         if self.request.GET.get('featured'):
@@ -166,10 +181,22 @@ def product_filter(request):
     
     min_price = request.GET.get('min_price')
     max_price = request.GET.get('max_price')
-    if min_price:
-        queryset = queryset.filter(base_price__gte=min_price)
-    if max_price:
-        queryset = queryset.filter(base_price__lte=max_price)
+    try:
+        min_price_val = Decimal(min_price) if min_price not in (None, '') else None
+    except (InvalidOperation, TypeError):
+        min_price_val = None
+    try:
+        max_price_val = Decimal(max_price) if max_price not in (None, '') else None
+    except (InvalidOperation, TypeError):
+        max_price_val = None
+
+    if min_price_val is not None and max_price_val is not None and min_price_val > max_price_val:
+        min_price_val, max_price_val = max_price_val, min_price_val
+
+    if min_price_val is not None:
+        queryset = queryset.filter(base_price__gte=min_price_val)
+    if max_price_val is not None:
+        queryset = queryset.filter(base_price__lte=max_price_val)
     
     if request.GET.get('featured'):
         queryset = queryset.filter(is_featured=True)
