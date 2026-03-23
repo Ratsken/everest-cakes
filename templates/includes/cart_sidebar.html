@@ -84,15 +84,18 @@
 <div id="cart-overlay" onclick="closeCart()" class="fixed inset-0 bg-black/50 z-40 hidden"></div>
 
 <script>
+function getCSRFToken() {
+    return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+}
+
 function updateCartItem(itemId, quantity) {
     if (quantity < 1) {
         removeCartItem(itemId);
         return;
     }
-    htmx.trigger(document.body, 'cart-update', {item_id: itemId, quantity: quantity});
-    fetch(`/cart/update/${itemId}/`, {
+    fetch(`/cart/item/${itemId}/update/`, {
         method: 'POST',
-        headers: {'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value, 'Content-Type': 'application/json'},
+        headers: {'X-CSRFToken': getCSRFToken(), 'Content-Type': 'application/json'},
         body: JSON.stringify({quantity: quantity})
     }).then(r => r.json()).then(data => {
         if (data.success) location.reload();
@@ -100,9 +103,9 @@ function updateCartItem(itemId, quantity) {
 }
 
 function removeCartItem(itemId) {
-    fetch(`/cart/remove/${itemId}/`, {
+    fetch(`/cart/item/${itemId}/remove/`, {
         method: 'POST',
-        headers: {'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value}
+        headers: {'X-CSRFToken': getCSRFToken()}
     }).then(() => location.reload());
 }
 </script>
