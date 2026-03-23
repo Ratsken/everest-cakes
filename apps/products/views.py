@@ -16,13 +16,19 @@ class ProductListView(ListView):
     template_name = 'products/list.html'
     context_object_name = 'products'
     paginate_by = 12
+
+    def get_paginate_by(self, queryset):
+        category_slug = self.request.GET.get('category')
+        if category_slug in (None, '', 'all'):
+            return None
+        return self.paginate_by
     
     def get_queryset(self):
         queryset = Product.objects.filter(is_available=True).select_related('category')
         
         # Category filter
         category_slug = self.request.GET.get('category')
-        if category_slug:
+        if category_slug and category_slug != 'all':
             queryset = queryset.filter(category__slug=category_slug)
         
         # Price range filter
@@ -176,7 +182,7 @@ def product_filter(request):
     queryset = Product.objects.filter(is_available=True).select_related('category')
     
     category_slug = request.GET.get('category')
-    if category_slug:
+    if category_slug and category_slug != 'all':
         queryset = queryset.filter(category__slug=category_slug)
     
     min_price = request.GET.get('min_price')
@@ -209,8 +215,11 @@ def product_filter(request):
     if sort in ['name', '-name', 'base_price', '-base_price', '-created_at', '-average_rating']:
         queryset = queryset.order_by(sort)
     
-    paginator = Paginator(queryset, 12)
-    page = request.GET.get('page', 1)
-    products = paginator.get_page(page)
+    if category_slug in (None, '', 'all'):
+        products = queryset
+    else:
+        paginator = Paginator(queryset, 12)
+        page = request.GET.get('page', 1)
+        products = paginator.get_page(page)
     
     return render(request, 'products/partials/product_grid.html', {'products': products})
