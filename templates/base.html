@@ -371,6 +371,59 @@
             input.value = Math.max(1, Math.min(parseInt(input.value) + delta, parseInt(input.max || 99)));
             input.dispatchEvent(new Event('change', { bubbles: true }));
         }
+
+        // Social share helpers
+        function openShareWindow(url) {
+            window.open(url, '_blank', 'noopener,noreferrer,width=600,height=700');
+        }
+
+        function shareOnFacebook(url) {
+            openShareWindow(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`);
+        }
+
+        function shareOnTwitter(url, text = '') {
+            const params = new URLSearchParams({ url });
+            if (text) params.set('text', text);
+            openShareWindow(`https://twitter.com/intent/tweet?${params.toString()}`);
+        }
+
+        function shareOnWhatsApp(url, text = '') {
+            const message = text ? `${text} ${url}` : url;
+            openShareWindow(`https://wa.me/?text=${encodeURIComponent(message)}`);
+        }
+
+        async function copyLink(url) {
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(url);
+                } else {
+                    const tempInput = document.createElement('textarea');
+                    tempInput.value = url;
+                    tempInput.style.position = 'fixed';
+                    tempInput.style.opacity = '0';
+                    document.body.appendChild(tempInput);
+                    tempInput.focus();
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                }
+                showToast('Link copied!', 'success');
+            } catch (error) {
+                showToast('Unable to copy link', 'error');
+            }
+        }
+
+        async function shareProduct(url, text = '') {
+            if (navigator.share) {
+                try {
+                    await navigator.share({ title: text || document.title, text: text || document.title, url });
+                    return;
+                } catch (error) {
+                    // Continue to fallback if share is cancelled/unavailable
+                }
+            }
+            copyLink(url);
+        }
         
         // Price calculator
         function updatePrice() {

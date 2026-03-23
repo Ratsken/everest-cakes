@@ -70,22 +70,26 @@
                 <!-- Social Sharing -->
                 <div class="border-t pt-8">
                     <p class="text-sm text-gray-600 mb-3">Share this article:</p>
-                    <div class="flex items-center gap-3">
-                        <button onclick="shareOnFacebook('{{ request.build_absolute_uri }}')"
-                                class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-colors">
-                            <i data-lucide="facebook" class="w-5 h-5"></i>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button type="button" onclick="shareOnFacebook('{{ request.build_absolute_uri|escapejs }}')"
+                                class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 bg-white hover:border-gold transition-colors text-sm">
+                            <i data-lucide="facebook" class="w-4 h-4 text-blue-600"></i>
+                            <span>Facebook</span>
                         </button>
-                        <button onclick="shareOnTwitter('{{ request.build_absolute_uri }}', '{{ post.title }}')"
-                                class="w-10 h-10 rounded-full bg-sky-500 text-white flex items-center justify-center hover:bg-sky-600 transition-colors">
-                            <i data-lucide="twitter" class="w-5 h-5"></i>
+                        <button type="button" onclick="shareOnTwitter('{{ request.build_absolute_uri|escapejs }}', '{{ post.title|escapejs }}')"
+                                class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 bg-white hover:border-gold transition-colors text-sm">
+                            <i data-lucide="send" class="w-4 h-4 text-sky-500"></i>
+                            <span>X</span>
                         </button>
-                        <button onclick="shareOnWhatsApp('{{ request.build_absolute_uri }}', 'Check out: {{ post.title }}')"
-                                class="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center hover:bg-green-600 transition-colors">
-                            <i data-lucide="message-circle" class="w-5 h-5"></i>
+                        <button type="button" onclick="shareOnWhatsApp('{{ request.build_absolute_uri|escapejs }}', 'Check out: {{ post.title|escapejs }}')"
+                                class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 bg-white hover:border-gold transition-colors text-sm">
+                            <i data-lucide="message-circle" class="w-4 h-4 text-green-600"></i>
+                            <span>WhatsApp</span>
                         </button>
-                        <button onclick="copyLink('{{ request.build_absolute_uri }}')"
-                                class="w-10 h-10 rounded-full bg-gray-200 text-charcoal flex items-center justify-center hover:bg-gray-300 transition-colors">
-                            <i data-lucide="link" class="w-5 h-5"></i>
+                        <button type="button" onclick="copyLink('{{ request.build_absolute_uri|escapejs }}')"
+                                class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 bg-white hover:border-gold transition-colors text-sm">
+                            <i data-lucide="link" class="w-4 h-4"></i>
+                            <span>Copy Link</span>
                         </button>
                     </div>
                 </div>

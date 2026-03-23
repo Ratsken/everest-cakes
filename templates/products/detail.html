@@ -282,22 +282,26 @@
             <!-- Social Share -->
             <div class="mt-6 pt-6 border-t">
                 <p class="text-sm text-gray-500 mb-2">Share:</p>
-                <div class="flex gap-2">
-                    <button onclick="window.open('https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}')" 
-                            class="p-2 bg-white border rounded-lg hover:border-gold transition-colors">
-                        <i data-lucide="facebook" class="w-5 h-5 text-blue-600"></i>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" onclick="shareOnFacebook('{{ request.build_absolute_uri|escapejs }}')"
+                            class="inline-flex items-center gap-2 px-3 py-2 bg-white border rounded-lg hover:border-gold transition-colors text-sm">
+                        <i data-lucide="facebook" class="w-4 h-4 text-blue-600"></i>
+                        <span>Facebook</span>
                     </button>
-                    <button onclick="window.open('https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ product.name }}')"
-                            class="p-2 bg-white border rounded-lg hover:border-gold transition-colors">
-                        <i data-lucide="twitter" class="w-5 h-5 text-sky-500"></i>
+                    <button type="button" onclick="shareOnTwitter('{{ request.build_absolute_uri|escapejs }}', '{{ product.name|escapejs }}')"
+                            class="inline-flex items-center gap-2 px-3 py-2 bg-white border rounded-lg hover:border-gold transition-colors text-sm">
+                        <i data-lucide="send" class="w-4 h-4 text-sky-500"></i>
+                        <span>X</span>
                     </button>
-                    <button onclick="window.open('https://wa.me/?text={{ product.name }} {{ request.build_absolute_uri }}')"
-                            class="p-2 bg-white border rounded-lg hover:border-gold transition-colors">
-                        <i data-lucide="message-circle" class="w-5 h-5 text-green-600"></i>
+                    <button type="button" onclick="shareOnWhatsApp('{{ request.build_absolute_uri|escapejs }}', '{{ product.name|escapejs }}')"
+                            class="inline-flex items-center gap-2 px-3 py-2 bg-white border rounded-lg hover:border-gold transition-colors text-sm">
+                        <i data-lucide="message-circle" class="w-4 h-4 text-green-600"></i>
+                        <span>WhatsApp</span>
                     </button>
-                    <button onclick="navigator.clipboard.writeText('{{ request.build_absolute_uri }}');showToast('Link copied!', 'success')"
-                            class="p-2 bg-white border rounded-lg hover:border-gold transition-colors">
-                        <i data-lucide="link" class="w-5 h-5"></i>
+                    <button type="button" onclick="copyLink('{{ request.build_absolute_uri|escapejs }}')"
+                            class="inline-flex items-center gap-2 px-3 py-2 bg-white border rounded-lg hover:border-gold transition-colors text-sm">
+                        <i data-lucide="link" class="w-4 h-4"></i>
+                        <span>Copy Link</span>
                     </button>
                 </div>
             </div>
