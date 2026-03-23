@@ -91,7 +91,7 @@ class OrderAdmin(ImportExportModelAdmin, ModelAdmin):
     def items_display(self, obj):
         items = obj.items or []
         if not items:
-            return format_html('<p style="color:#999;">No items recorded.</p>')
+            return mark_safe('<p style="color:#999;">No items recorded.</p>')
 
         rows = []
         for idx, item in enumerate(items):

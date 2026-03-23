@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from unfold.admin import ModelAdmin, TabularInline
 from unfold.decorators import action, display
 from import_export.admin import ImportExportModelAdmin
@@ -177,7 +178,7 @@ class ProductAdmin(ImportExportModelAdmin, ModelAdmin):
     def stock_status_badge(self, obj):
         status = obj.stock_status
         if status == 'out_of_stock':
-            return format_html('<span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium">Out of Stock</span>')
+            return mark_safe('<span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium">Out of Stock</span>')
         elif status == 'low_stock':
             return format_html('<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-medium">Low ({})</span>', obj.stock_quantity)
         return format_html('<span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">In Stock ({})</span>', obj.stock_quantity)
