@@ -40,6 +40,9 @@ class CheckoutView(View):
         cart = get_or_create_cart(request)
         if not cart or cart.total_items == 0:
             return JsonResponse({'error': 'Cart is empty'}, status=400)
+
+        fulfillment_method = request.POST.get('fulfillment_method', 'pickup')
+        include_delivery = fulfillment_method == 'delivery'
         
         # Get form data
         customer_name = request.POST.get('customer_name', '').strip()
@@ -62,8 +65,11 @@ class CheckoutView(View):
         notes = request.POST.get('notes', '').strip()
         
         # Validate required fields
-        if not all([customer_name, customer_email, customer_phone, delivery_address, delivery_date]):
+        if not all([customer_name, customer_email, customer_phone]):
             return JsonResponse({'error': 'Please fill all required fields'}, status=400)
+
+        if include_delivery and not all([delivery_address, delivery_city, delivery_date]):
+            return JsonResponse({'error': 'Please provide delivery address, city and date'}, status=400)
         
         # Validate phone number format
         if not customer_phone.startswith('+'):
@@ -130,13 +136,23 @@ class CheckoutView(View):
             })
         
         # Parse delivery date
-        try:
-            delivery_date_parsed = datetime.strptime(delivery_date, '%Y-%m-%d').date()
-        except:
+        if include_delivery:
             try:
-                delivery_date_parsed = datetime.strptime(delivery_date, '%d/%m/%Y').date()
+                delivery_date_parsed = datetime.strptime(delivery_date, '%Y-%m-%d').date()
             except:
-                return JsonResponse({'error': 'Invalid delivery date format'}, status=400)
+                try:
+                    delivery_date_parsed = datetime.strptime(delivery_date, '%d/%m/%Y').date()
+                except:
+                    return JsonResponse({'error': 'Invalid delivery date format'}, status=400)
+        else:
+            delivery_address = 'Store Pickup'
+            delivery_city = 'Pickup'
+            delivery_date_parsed = timezone.localdate()
+            delivery_time_slot = ''
+            delivery_instructions = ''
+
+        order_delivery_fee = cart.delivery_fee if include_delivery else 0
+        order_total = cart.subtotal + order_delivery_fee
         
         # Create order
         order = Order.objects.create(
@@ -152,8 +168,8 @@ class CheckoutView(View):
             payment_method=payment_method,
             items=items,
             subtotal=cart.subtotal,
-            delivery_fee=cart.delivery_fee,
-            total=cart.total,
+            delivery_fee=order_delivery_fee,
+            total=order_total,
             is_gift=is_gift,
             recipient_name=recipient_name,
             recipient_phone=recipient_phone,

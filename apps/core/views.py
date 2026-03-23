@@ -43,7 +43,7 @@ class HomeView(TemplateView):
         context['categories'] = (
             Category.objects.filter(is_active=True)
             .annotate(min_price=Min('products__base_price'))
-            .order_by('order')[:6]
+            .order_by('order')
         )
 
         # Primary hero's linked category min-price for the floating badge

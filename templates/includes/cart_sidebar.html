@@ -63,11 +63,11 @@
         </div>
         <div class="flex justify-between text-sm font-sans">
             <span class="text-gray-500">Delivery</span>
-            <span class="font-semibold">{% if cart_total >= FREE_DELIVERY_THRESHOLD %}Free{% else %}KSh {{ DEFAULT_DELIVERY_FEE }}{% endif %}</span>
+            <span class="font-semibold text-gray-500">Optional at checkout</span>
         </div>
         <div class="flex justify-between font-sans">
             <span class="font-semibold">Total</span>
-            <span class="font-bold text-xl text-brand-primary">KSh {% if cart_total >= FREE_DELIVERY_THRESHOLD %}{{ cart_total }}{% else %}{{ cart_total|add:DEFAULT_DELIVERY_FEE }}{% endif %}</span>
+            <span class="font-bold text-xl text-brand-primary">KSh {{ cart_total }}</span>
         </div>
         <a href="{% url 'orders:checkout' %}" onclick="closeCart()" class="block w-full btn-primary text-center py-4 font-sans text-sm uppercase tracking-widest">
             Checkout
