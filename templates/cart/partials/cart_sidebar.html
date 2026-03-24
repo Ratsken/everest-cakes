@@ -14,7 +14,7 @@
                 </div>
                 {% endif %}
             </div>
-            
+
             <!-- Details -->
             <div class="flex-1 min-w-0">
                 <div class="flex items-start justify-between gap-2">
@@ -28,26 +28,26 @@
                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                     </button>
                 </div>
-                
+
                 <!-- Attributes -->
                 {% if item.selected_attributes_display %}
                 <p class="text-xs text-gray-500 mt-1">{{ item.selected_attributes_display|join:", " }}</p>
                 {% endif %}
-                
+
                 <!-- Addons -->
                 {% if item.selected_addons_display %}
                 <p class="text-xs text-gold mt-0.5">+{{ item.selected_addons_display|join:", " }}</p>
                 {% endif %}
-                
+
                 <!-- Custom Message -->
                 {% if item.custom_message %}
                 <p class="text-xs text-gray-500 italic mt-1">"{{ item.custom_message }}"</p>
                 {% endif %}
-                
+
                 <!-- Price & Quantity -->
                 <div class="flex items-center justify-between mt-2">
                     <div class="flex items-center gap-1">
-                        <button hx-post="{% url 'cart:update_item' item.id %}" 
+                        <button hx-post="{% url 'cart:update_item' item.id %}"
                                 hx-vals='{"quantity": {{ item.quantity|add:"-1" }} }'
                                 hx-target="#cart-content"
                                 class="w-6 h-6 flex items-center justify-center border rounded hover:bg-gray-100">
@@ -70,7 +70,7 @@
 </div>
 
 <!-- Summary -->
-<div class="border-t p-4 space-y-3 bg-gray-50">
+<div class="border-t p-4 space-y-3 bg-gray-50 flex-shrink-0">
     <div class="flex justify-between text-sm">
         <span class="text-gray-600">Subtotal</span>
         <span>KSh {{ cart.subtotal }}</span>
@@ -83,7 +83,7 @@
         <span>Total</span>
         <span class="text-gold">KSh {{ cart.subtotal }}</span>
     </div>
-    
+
     <div class="space-y-2 pt-2">
         <a href="{% url 'orders:checkout' %}" class="block w-full btn-primary py-2.5 rounded-lg text-center font-medium text-sm">
             Checkout
@@ -108,5 +108,25 @@
 {% endif %}
 
 {% if added %}
-<script>showToast('Added to cart!', 'success');</script>
+<script>
+    openCart();
+    // Update cart badge count
+    fetch('/cart/count/').then(r => r.json()).then(data => {
+        const badge = document.querySelector('[onclick="openCart()"] span');
+        if (data.count > 0) {
+            if (badge) {
+                badge.textContent = data.count;
+            } else {
+                const btn = document.querySelector('[onclick="openCart()"]');
+                if (btn) {
+                    const span = document.createElement('span');
+                    span.className = 'absolute -top-1 -right-1 w-5 h-5 bg-gold text-brand-dark text-[10px] font-bold rounded-full flex items-center justify-center';
+                    span.textContent = data.count;
+                    btn.appendChild(span);
+                }
+            }
+        }
+    });
+    showToast('Added to cart!', 'success');
+</script>
 {% endif %}

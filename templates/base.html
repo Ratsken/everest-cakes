@@ -352,8 +352,14 @@
         });
         
         // Cart sidebar
-        function openCart() { document.getElementById('cart-sidebar').classList.add('cart-open'); }
-        function closeCart() { document.getElementById('cart-sidebar').classList.remove('cart-open'); }
+        function openCart() {
+            document.getElementById('cart-sidebar').classList.add('cart-open');
+            document.getElementById('cart-overlay').classList.remove('hidden');
+        }
+        function closeCart() {
+            document.getElementById('cart-sidebar').classList.remove('cart-open');
+            document.getElementById('cart-overlay').classList.add('hidden');
+        }
         
         // Toast
         function showToast(msg, type = 'success') {

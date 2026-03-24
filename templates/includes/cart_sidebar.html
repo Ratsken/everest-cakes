@@ -1,4 +1,4 @@
-<!-- Cart Sidebar - Luxury Style -->
+<!-- Cart Sidebar -->
 <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full sm:w-96 bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
     <!-- Header -->
     <div class="flex items-center justify-between p-6 border-b border-gray-100">
@@ -7,77 +7,11 @@
             <i data-lucide="x" class="w-5 h-5"></i>
         </button>
     </div>
-    
-    <!-- Cart Content -->
-    <div id="cart-content" class="flex-1 overflow-y-auto p-6">
-        {% if cart_items %}
-        <div class="space-y-4">
-            {% for item in cart_items %}
-            <div class="flex gap-4 p-4 bg-cream rounded-xl">
-                {% if item.product.featured_image %}
-                <img src="{{ item.product.featured_image.url }}" alt="{{ item.product.name }}" class="w-20 h-20 rounded-lg object-cover">
-                {% else %}
-                <div class="w-20 h-20 rounded-lg bg-cream-dark flex items-center justify-center">
-                    <i data-lucide="cake" class="w-8 h-8 text-gray-300"></i>
-                </div>
-                {% endif %}
-                <div class="flex-1">
-                    <h4 class="font-serif font-medium text-brand-dark">{{ item.product.name }}</h4>
-                    {% if item.variant %}
-                    <p class="text-xs text-gray-500 font-sans">{{ item.variant.name }}</p>
-                    {% endif %}
-                    <div class="flex items-center justify-between mt-2">
-                        <div class="flex items-center border rounded-lg bg-white">
-                            <button onclick="updateCartItem('{{ item.id }}', {{ item.quantity|add:'-1' }})" class="px-2 py-1 hover:bg-gray-100">
-                                <i data-lucide="minus" class="w-3 h-3"></i>
-                            </button>
-                            <span class="px-3 text-sm font-sans">{{ item.quantity }}</span>
-                            <button onclick="updateCartItem('{{ item.id }}', {{ item.quantity|add:'1' }})" class="px-2 py-1 hover:bg-gray-100">
-                                <i data-lucide="plus" class="w-3 h-3"></i>
-                            </button>
-                        </div>
-                        <span class="font-sans font-semibold text-brand-dark">KSh {{ item.total_price }}</span>
-                    </div>
-                </div>
-                <button onclick="removeCartItem('{{ item.id }}')" class="text-gray-400 hover:text-red-500 transition-colors">
-                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                </button>
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="flex flex-col items-center justify-center h-full text-center">
-            <i data-lucide="shopping-bag" class="w-16 h-16 text-gray-200 mb-4"></i>
-            <p class="text-gray-500 font-sans mb-4">Your cart is empty</p>
-            <a href="{% url 'products:list' %}" onclick="closeCart()" class="text-gold font-sans text-sm uppercase tracking-wider hover:underline">Start Shopping</a>
-        </div>
-        {% endif %}
+
+    <!-- Cart Body (items + summary, replaced by HTMX) -->
+    <div id="cart-content" class="flex-1 flex flex-col overflow-hidden">
+        {% include 'cart/partials/cart_sidebar.html' %}
     </div>
-    
-    <!-- Footer -->
-    {% if cart_items %}
-    <div class="border-t border-gray-100 p-6 space-y-4">
-        <div class="flex justify-between text-sm font-sans">
-            <span class="text-gray-500">Subtotal</span>
-            <span class="font-semibold">KSh {{ cart_total }}</span>
-        </div>
-        <div class="flex justify-between text-sm font-sans">
-            <span class="text-gray-500">Delivery</span>
-            <span class="font-semibold text-gray-500">Optional at checkout</span>
-        </div>
-        <div class="flex justify-between font-sans">
-            <span class="font-semibold">Total</span>
-            <span class="font-bold text-xl text-brand-primary">KSh {{ cart_total }}</span>
-        </div>
-        <a href="{% url 'orders:checkout' %}" onclick="closeCart()" class="block w-full btn-primary text-center py-4 font-sans text-sm uppercase tracking-widest">
-            Checkout
-        </a>
-        <a href="https://wa.me/{{ BUSINESS_WHATSAPP|slice:'1:' }}?text=Hi, I'd like to inquire about ordering a cake" target="_blank" 
-           class="block w-full text-center py-3 border border-brand-primary text-brand-primary font-sans text-sm uppercase tracking-widest hover:bg-brand-primary hover:text-white transition-colors">
-            Order via WhatsApp
-        </a>
-    </div>
-    {% endif %}
 </div>
 
 <!-- Overlay -->
@@ -93,13 +27,13 @@ function updateCartItem(itemId, quantity) {
         removeCartItem(itemId);
         return;
     }
+    const formData = new FormData();
+    formData.append('quantity', quantity);
     fetch(`/cart/item/${itemId}/update/`, {
         method: 'POST',
-        headers: {'X-CSRFToken': getCSRFToken(), 'Content-Type': 'application/json'},
-        body: JSON.stringify({quantity: quantity})
-    }).then(r => r.json()).then(data => {
-        if (data.success) location.reload();
-    });
+        headers: {'X-CSRFToken': getCSRFToken()},
+        body: formData
+    }).then(() => location.reload());
 }
 
 function removeCartItem(itemId) {

@@ -75,7 +75,7 @@ class CartItem(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
-        unique_together = ['cart', 'product', 'variant']
+        pass
     
     @property
     def total_price(self):
@@ -154,8 +154,7 @@ class CartItem(models.Model):
         
         # Final unit price
         self.unit_price = self.base_price + self.attributes_price + self.addons_price
-        self.save()
-        
+
         return self.unit_price
     
     def __str__(self):

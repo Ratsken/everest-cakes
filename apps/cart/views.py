@@ -60,67 +60,63 @@ def add_to_cart(request):
     quantity = int(request.POST.get('quantity', 1))
     custom_message = request.POST.get('custom_message', '')
     special_instructions = request.POST.get('special_instructions', '')
-    
+
     # Get selected attributes
     selected_attributes = {}
     for key, value in request.POST.items():
         if key.startswith('attr_'):
             attr_id = key.replace('attr_', '')
             selected_attributes[attr_id] = value
-    
-    # Get selected addons
+
+    # Get selected addons (exclude addon_qty_ fields)
     selected_addons = []
     for key, value in request.POST.items():
-        if key.startswith('addon_') and value:
+        if key.startswith('addon_') and not key.startswith('addon_qty_') and value:
             addon_id = key.replace('addon_', '')
             addon_qty = int(request.POST.get(f'addon_qty_{addon_id}', 1))
             selected_addons.append({
                 'addon_id': addon_id,
                 'quantity': addon_qty
             })
-    
+
     product = get_object_or_404(Product, id=product_id, is_available=True)
     variant = None
-    
+
     if variant_id:
         variant = get_object_or_404(ProductVariant, id=variant_id)
-    
+
     cart = get_or_create_cart(request)
-    
-    # Create cart item
-    cart_item = CartItem(
-        cart=cart,
-        product=product,
-        variant=variant,
-        quantity=quantity,
-        selected_attributes=selected_attributes,
-        selected_addons=selected_addons,
-        custom_message=custom_message,
-        special_instructions=special_instructions,
-    )
-    
-    # Calculate price
-    cart_item.calculate_price()
-    
-    # Check if same item exists (same product, variant, attributes, addons)
+
+    # Check if same item exists first (same product, variant, attributes, addons)
     existing_item = None
     for item in cart.items.all():
-        if (item.product == product and 
+        if (item.product == product and
             item.variant == variant and
             item.selected_attributes == selected_attributes and
             item.selected_addons == selected_addons):
             existing_item = item
             break
-    
+
     if existing_item:
         existing_item.quantity += quantity
         existing_item.save()
     else:
+        cart_item = CartItem(
+            cart=cart,
+            product=product,
+            variant=variant,
+            quantity=quantity,
+            selected_attributes=selected_attributes,
+            selected_addons=selected_addons,
+            custom_message=custom_message,
+            special_instructions=special_instructions,
+        )
+        cart_item.calculate_price()
         cart_item.save()
-    
+
     if request.htmx:
         return render(request, 'cart/partials/cart_sidebar.html', {'cart': cart, 'added': True})
-    
+
     return JsonResponse({
         'success': True,
         'cart_count': cart.total_items,
@@ -191,31 +187,32 @@ def cart_view(request):
 def update_item_attributes(request, item_id):
     """Update cart item attributes/addons"""
     cart_item = get_object_or_404(CartItem, id=item_id)
-    
+
     # Get selected attributes
     selected_attributes = {}
     for key, value in request.POST.items():
         if key.startswith('attr_'):
             attr_id = key.replace('attr_', '')
             selected_attributes[attr_id] = value
-    
-    # Get selected addons
+
+    # Get selected addons (exclude addon_qty_ fields)
     selected_addons = []
     for key, value in request.POST.items():
-        if key.startswith('addon_') and value:
+        if key.startswith('addon_') and not key.startswith('addon_qty_') and value:
             addon_id = key.replace('addon_', '')
             addon_qty = int(request.POST.get(f'addon_qty_{addon_id}', 1))
             selected_addons.append({
                 'addon_id': addon_id,
                 'quantity': addon_qty
             })
-    
+
     cart_item.selected_attributes = selected_attributes
     cart_item.selected_addons = selected_addons
     cart_item.custom_message = request.POST.get('custom_message', '')
     cart_item.special_instructions = request.POST.get('special_instructions', '')
     cart_item.calculate_price()
-    
+    cart_item.save()
+
     cart = cart_item.cart
     
     if request.htmx:
@@ -294,11 +291,11 @@ def get_product_price(request):
             except ProductAttributeOption.DoesNotExist:
                 pass
     
-    # Addon prices
+    # Addon prices (exclude addon_qty_ fields)
     addons_total = Decimal('0')
     addons_display = []
     for key, value in request.GET.items():
-        if key.startswith('addon_') and value:
+        if key.startswith('addon_') and not key.startswith('addon_qty_') and value:
             addon_id = key.replace('addon_', '')
             qty = int(request.GET.get(f'addon_qty_{addon_id}', 1))
             try:
