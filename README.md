@@ -103,6 +103,26 @@ everest_cakes/
 
 ## 🔧 Configuration
 
+## 📥 Catalog Import (Excel)
+
+To fully replace catalog data (categories, products, variants, addons) from an Excel file:
+
+```bash
+python manage.py initial_data --reset --catalog-file "EVEREST PRICE LIST 2026(1).xlsx"
+```
+
+Expected workbook sheets:
+- `categories`
+- `addons`
+- `products`
+- `variants`
+- `product_addons` (optional)
+
+Notes:
+- `--reset` in catalog mode clears existing catalog-related data before import.
+- Product rows must reference category by `category_slug` or `category`/`category_name`.
+- Variant rows must reference product by `product_slug` or `product`/`product_name`.
+
 ### M-Pesa Integration
 1. Register on [Safaricom Developer Portal](https://developer.safaricom.co.ke)
 2. Create an app and get credentials

@@ -19,6 +19,8 @@ This command will create:
 from django.core.management.base import BaseCommand
 from django.core.files import File
 from django.conf import settings
+from django.db import transaction
+from django.utils.text import slugify
 from apps.core.models import (
     SiteSetting, Page, HeroSection, FeaturedCard, Testimonial
 )
@@ -30,6 +32,13 @@ import os
 import requests
 from io import BytesIO
 from decimal import Decimal
+from pathlib import Path
+import re
+
+try:
+    from openpyxl import load_workbook
+except ImportError:
+    load_workbook = None
 
 
 class Command(BaseCommand):
@@ -41,9 +50,29 @@ class Command(BaseCommand):
             action='store_true',
             help='Delete existing data before creating new data',
         )
+        parser.add_argument(
+            '--catalog-file',
+            type=str,
+            help='Path to Excel (.xlsx) file containing catalog sheets for categories, addons, products, and variants',
+        )
 
     def handle(self, *args, **options):
         self.stdout.write(self.style.SUCCESS('🚀 Starting initial data population...'))
+
+        catalog_file = options.get('catalog_file')
+
+        if catalog_file:
+            if options['reset']:
+                self.stdout.write('⚠️  Reset flag enabled - clearing existing catalog data...')
+                self.clear_catalog_data()
+            self.import_catalog_from_excel(catalog_file)
+            self.stdout.write(self.style.SUCCESS('\n✅ Catalog import from Excel complete!'))
+            self.stdout.write(self.style.SUCCESS('📊 Catalog Summary:'))
+            self.stdout.write(f'   - Categories: {Category.objects.count()}')
+            self.stdout.write(f'   - Products: {Product.objects.count()}')
+            self.stdout.write(f'   - Variants: {ProductVariant.objects.count()}')
+            self.stdout.write(f'   - Addons: {ProductAddon.objects.count()}')
+            return
         
         if options['reset']:
             self.stdout.write('⚠️  Reset flag enabled - clearing existing data...')
@@ -67,6 +96,837 @@ class Command(BaseCommand):
         self.stdout.write(f'   - Attributes: {ProductAttribute.objects.count()}')
         self.stdout.write(f'   - Addons: {ProductAddon.objects.count()}')
         self.stdout.write(f'   - Testimonials: {Testimonial.objects.count()}')
+
+    def clear_catalog_data(self):
+        """Clear existing catalog data only (products and related entities)."""
+        debug_original = settings.DEBUG
+        try:
+            settings.DEBUG = False
+            from django.db import connection
+
+            delete_tables = [
+                'cart_cartitem',
+                'products_productreview',
+                'products_productvariant',
+                'products_productattributemapping_available_options',
+                'products_productattributemapping',
+                'products_product_addons',
+                'products_product_tags',
+                'products_product',
+                'products_productattributeoption',
+                'products_productattribute',
+                'products_productaddon',
+                'products_category',
+            ]
+
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+                existing_tables = {row[0] for row in cursor.fetchall()}
+                for table in delete_tables:
+                    if table in existing_tables:
+                        cursor.execute(f'DELETE FROM "{table}"')
+        finally:
+            settings.DEBUG = debug_original
+
+        self.stdout.write('   ✓ Catalog data cleared')
+
+    def import_catalog_from_excel(self, file_path):
+        """Import categories, addons, products, variants and product-addon mappings from Excel."""
+        if load_workbook is None:
+            raise RuntimeError('openpyxl is required for Excel import. Install dependencies from requirements.txt first.')
+
+        excel_path = Path(file_path)
+        if not excel_path.exists() or not excel_path.is_file():
+            raise RuntimeError(f'Excel file not found: {excel_path}')
+
+        if excel_path.suffix.lower() != '.xlsx':
+            raise RuntimeError('Only .xlsx files are supported for --catalog-file')
+
+        self.stdout.write(f'📥 Loading catalog workbook: {excel_path}')
+        workbook = load_workbook(filename=excel_path, data_only=True)
+
+        matrix_sheet = self._detect_price_matrix_sheet(workbook)
+        if matrix_sheet is not None:
+            self.stdout.write(f"📊 Detected price-matrix format in sheet '{matrix_sheet.title}'")
+            self._import_price_matrix_catalog(matrix_sheet)
+            return
+
+        categories_sheet = self._get_sheet_by_aliases(workbook, ['categories', 'category'])
+        addons_sheet = self._get_sheet_by_aliases(workbook, ['addons', 'addon', 'product_addons'])
+        products_sheet = self._get_sheet_by_aliases(workbook, ['products', 'product'])
+        variants_sheet = self._get_sheet_by_aliases(workbook, ['variants', 'variant', 'product_variants'])
+        product_addons_sheet = self._get_sheet_by_aliases(workbook, ['product_addons', 'productaddons', 'product_addon_map'], required=False)
+
+        self.stdout.write('📁 Importing categories...')
+        category_count, categories_by_slug, categories_by_name = self._import_categories_sheet(categories_sheet)
+        self.stdout.write(f'   ✓ Categories imported: {category_count}')
+
+        self.stdout.write('➕ Importing addons...')
+        addon_count, addons_by_slug, addons_by_name = self._import_addons_sheet(addons_sheet)
+        self.stdout.write(f'   ✓ Addons imported: {addon_count}')
+
+        self.stdout.write('🎂 Importing products...')
+        products_by_slug, products_by_name = self._import_products_sheet(
+            products_sheet,
+            categories_by_slug,
+            categories_by_name,
+        )
+        self.stdout.write(f'   ✓ Products imported: {len(products_by_slug)}')
+
+        self.stdout.write('📦 Importing variants...')
+        variant_count = self._import_variants_sheet(variants_sheet, products_by_slug, products_by_name)
+        self.stdout.write(f'   ✓ Variants imported: {variant_count}')
+
+        addon_link_count = self._map_product_addons_from_products_sheet(
+            products_sheet,
+            products_by_slug,
+            products_by_name,
+            addons_by_slug,
+            addons_by_name,
+        )
+
+        if product_addons_sheet is not None:
+            addon_link_count += self._import_product_addons_sheet(
+                product_addons_sheet,
+                products_by_slug,
+                products_by_name,
+                addons_by_slug,
+                addons_by_name,
+            )
+
+        self.stdout.write(f'   ✓ Product-addon links imported: {addon_link_count}')
+
+    def _normalize_header(self, value):
+        if value is None:
+            return ''
+        text = str(value).strip().lower()
+        normalized = ''.join(ch if ch.isalnum() else '_' for ch in text)
+        while '__' in normalized:
+            normalized = normalized.replace('__', '_')
+        return normalized.strip('_')
+
+    def _normalize_key(self, value):
+        if value is None:
+            return ''
+        text = str(value).strip().lower()
+        return ' '.join(text.split())
+
+    def _slug(self, value):
+        return slugify(str(value).strip()) if value is not None else ''
+
+    def _parse_decimal(self, value, default=Decimal('0')):
+        if value in (None, ''):
+            return default
+        if isinstance(value, Decimal):
+            return value
+        if isinstance(value, (int, float)):
+            return Decimal(str(value))
+        text = str(value).strip().replace(',', '')
+        if text == '':
+            return default
+        try:
+            return Decimal(text)
+        except Exception:
+            return default
+
+    def _parse_int(self, value, default=0):
+        if value in (None, ''):
+            return default
+        try:
+            return int(float(value))
+        except Exception:
+            return default
+
+    def _parse_bool(self, value, default=False):
+        if value is None:
+            return default
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, (int, float)):
+            return bool(value)
+        text = str(value).strip().lower()
+        if text in {'1', 'true', 'yes', 'y', 'on'}:
+            return True
+        if text in {'0', 'false', 'no', 'n', 'off'}:
+            return False
+        return default
+
+    def _sheet_rows(self, sheet):
+        rows = list(sheet.iter_rows(values_only=True))
+        if not rows:
+            return [], []
+        raw_headers = rows[0]
+        headers = [self._normalize_header(cell) for cell in raw_headers]
+        data_rows = []
+        for row in rows[1:]:
+            if not row or all(cell in (None, '') for cell in row):
+                continue
+            row_dict = {}
+            for index, header in enumerate(headers):
+                if not header:
+                    continue
+                row_dict[header] = row[index] if index < len(row) else None
+            data_rows.append(row_dict)
+        return headers, data_rows
+
+    def _detect_price_matrix_sheet(self, workbook):
+        for sheet_name in workbook.sheetnames:
+            sheet = workbook[sheet_name]
+            headers, _ = self._sheet_rows(sheet)
+            if 'name' not in headers:
+                continue
+            if any(re.search(r'\d+(?:\.\d+)?\s*kg$', header or '', re.IGNORECASE) for header in headers):
+                return sheet
+        return None
+
+    def _extract_note_addons(self, sheet):
+        rows = list(sheet.iter_rows(values_only=True))
+        normalized_rows = [
+            [str(cell).strip() if cell is not None else '' for cell in row]
+            for row in rows
+        ]
+
+        addons = []
+
+        # Hard icing / fondant note
+        for row in normalized_rows:
+            for cell in row:
+                lower = cell.lower()
+                if 'hard icing' in lower or 'fondant' in lower:
+                    price_match = re.search(r'(\d{2,6})', lower)
+                    price = Decimal(price_match.group(1)) if price_match else Decimal('0')
+                    addons.append({
+                        'name': 'Hard Icing / Fondant Upgrade',
+                        'slug': 'hard-icing-fondant-upgrade',
+                        'description': cell,
+                        'price': price,
+                        'is_free': price == 0,
+                        'max_quantity': 1,
+                        'order': 1,
+                        'is_available': True,
+                    })
+                    break
+
+        edible_col = None
+        topper_col = None
+        edible_row = None
+        topper_row = None
+
+        for row_index, row in enumerate(normalized_rows):
+            for col_index, cell in enumerate(row):
+                lower = cell.lower()
+                if edible_col is None and 'edible' in lower and 'photo' in lower:
+                    edible_col = col_index
+                    edible_row = row_index
+                if topper_col is None and 'paper topper' in lower:
+                    topper_col = col_index
+                    topper_row = row_index
+
+        def add_size_addons(start_row, col_index, prefix, order_start):
+            if col_index is None or start_row is None:
+                return []
+            parsed = []
+            order = order_start
+            for row_index in range(start_row + 1, min(start_row + 10, len(normalized_rows))):
+                cell = normalized_rows[row_index][col_index] if col_index < len(normalized_rows[row_index]) else ''
+                if not cell:
+                    continue
+                size_match = re.search(r'\b(A[0-9]+)\b', cell, re.IGNORECASE)
+                price_match = re.search(r'(\d{2,6})', cell)
+                if not size_match or not price_match:
+                    continue
+                size = size_match.group(1).upper()
+                price = Decimal(price_match.group(1))
+                name = f'{prefix} {size}'
+                parsed.append({
+                    'name': name,
+                    'slug': self._slug(name),
+                    'description': f'{prefix} size {size}',
+                    'price': price,
+                    'is_free': price == 0,
+                    'max_quantity': 2,
+                    'order': order,
+                    'is_available': True,
+                })
+                order += 1
+            return parsed
+
+        addons.extend(add_size_addons(edible_row, edible_col, 'Edible Photo', 10))
+        addons.extend(add_size_addons(topper_row, topper_col, 'Paper Topper', 20))
+
+        deduped = {}
+        for addon in addons:
+            deduped[addon['slug']] = addon
+        return list(deduped.values())
+
+    def _normalized_matrix_title(self, raw_name):
+        text = ' '.join(str(raw_name or '').strip().split())
+        key = text.lower()
+
+        aliases = {
+            'vannila': 'Vanilla Cakes',
+            'strawberry': 'Strawberry Cakes',
+            'chocolate': 'Chocolate Cakes',
+            'marble': 'Marble Cakes',
+            'orange': 'Orange Cakes',
+            'lemon': 'Lemon Cakes',
+            'blackforest': 'Black Forest Cakes',
+            'passion': 'Passion Cakes',
+            'white forest': 'White Forest Cakes',
+            'butter scotch': 'Butterscotch Cakes',
+            'redvelvet cake': 'Red Velvet Cakes',
+            'eggless cake': 'Eggless Cakes',
+            'diabetic cake': 'Diabetic Cakes',
+            'cinnamon cherry': 'Cinnamon Cherry Cakes',
+            'carrot pineapple': 'Carrot Pineapple Cakes',
+            'carrot nut cake': 'Carrot Nut Cakes',
+            'chocolate orange': 'Chocolate Orange Cakes',
+            'chocolate orange cake': 'Chocolate Orange Cakes',
+            'pinacolada': 'Pina Colada Cakes',
+            'zuchinni cake': 'Zucchini Cakes',
+            'amarula blackforest': 'Amarula Black Forest Cakes',
+            'chocolate chip cake': 'Chocolate Chip Cakes',
+            'banana cake': 'Banana Cakes',
+            'choc orange b/f': 'Chocolate Orange Black Forest Cakes',
+            'coffee cake': 'Coffee Cakes',
+            'chocolate fudge cake': 'Chocolate Fudge Cakes',
+            'fruit cake': 'Fruit Cakes',
+            'rasberry cake': 'Raspberry Cakes',
+            'choc mint cake': 'Chocolate Mint Cakes',
+            'amarula whiteforest': 'Amarula White Forest Cakes',
+            'coconut orange cake': 'Coconut Orange Cakes',
+            'ice cream cake': 'Ice Cream Cakes',
+            'tiramisu': 'Tiramisu Cakes',
+            'cheese cake': 'Cheesecake Cakes',
+            'blueberry cake': 'Blueberry Cakes',
+            'coconut': 'Coconut Cakes',
+            'caramel': 'Caramel Cakes',
+        }
+
+        if key in aliases:
+            return aliases[key]
+
+        cleaned = re.sub(r'\s+', ' ', text).strip()
+        cleaned = cleaned.replace('B/F', 'Black Forest').replace('b/f', 'Black Forest')
+        cleaned = cleaned.title()
+        cleaned = cleaned.replace('Redvelvet', 'Red Velvet').replace('Blackforest', 'Black Forest')
+        cleaned = cleaned.replace('Whiteforest', 'White Forest').replace('Rasberry', 'Raspberry')
+        cleaned = cleaned.replace('Zuchinni', 'Zucchini').replace('Pinacolada', 'Pina Colada')
+        if not cleaned.endswith('Cake') and not cleaned.endswith('Cakes'):
+            cleaned = f'{cleaned} Cakes'
+        if cleaned.endswith('Cake'):
+            cleaned = f'{cleaned}s'
+        return cleaned
+
+    def _matrix_category_for_name(self, raw_name, normalized_title):
+        source = f"{str(raw_name or '').lower()} {normalized_title.lower()}"
+        raw_key = ' '.join(str(raw_name or '').strip().lower().split())
+        normalized_key = ' '.join(str(normalized_title or '').strip().lower().split())
+
+        title_map = {
+            'vanilla cakes': 'classic-cakes',
+            'strawberry cakes': 'fruit-citrus-cakes',
+            'chocolate cakes': 'chocolate-cakes',
+            'marble cakes': 'classic-cakes',
+            'orange cakes': 'fruit-citrus-cakes',
+            'lemon cakes': 'fruit-citrus-cakes',
+            'black forest cakes': 'forest-cakes',
+            'passion cakes': 'fruit-citrus-cakes',
+            'white forest cakes': 'forest-cakes',
+            'butterscotch cakes': 'classic-cakes',
+            'red velvet cakes': 'classic-cakes',
+            'eggless cakes': 'dietary-cakes',
+            'diabetic cakes': 'dietary-cakes',
+            'cinnamon cherry cakes': 'spiced-nut-cakes',
+            'carrot pineapple cakes': 'spiced-nut-cakes',
+            'carrot nut cakes': 'spiced-nut-cakes',
+            'chocolate orange cakes': 'chocolate-cakes',
+            'pina colada cakes': 'fruit-citrus-cakes',
+            'zucchini cakes': 'spiced-nut-cakes',
+            'amarula black forest cakes': 'premium-cakes',
+            'chocolate chip cakes': 'chocolate-cakes',
+            'banana cakes': 'fruit-citrus-cakes',
+            'chocolate orange black forest cakes': 'premium-cakes',
+            'coffee cakes': 'premium-cakes',
+            'chocolate fudge cakes': 'chocolate-cakes',
+            'fruit cakes': 'fruit-citrus-cakes',
+            'raspberry cakes': 'fruit-citrus-cakes',
+            'chocolate mint cakes': 'chocolate-cakes',
+            'amarula white forest cakes': 'premium-cakes',
+            'coconut orange cakes': 'fruit-citrus-cakes',
+            'ice cream cakes': 'premium-cakes',
+            'tiramisu cakes': 'premium-cakes',
+            'cheesecake cakes': 'premium-cakes',
+            'blueberry cakes': 'fruit-citrus-cakes',
+            'coconut cakes': 'fruit-citrus-cakes',
+            'caramel cakes': 'classic-cakes',
+        }
+
+        if normalized_key in title_map:
+            return title_map[normalized_key]
+
+        explicit_map = {
+            'vannila': 'classic-cakes',
+            'strawberry': 'fruit-citrus-cakes',
+            'chocolate': 'chocolate-cakes',
+            'marble': 'classic-cakes',
+            'orange': 'fruit-citrus-cakes',
+            'lemon': 'fruit-citrus-cakes',
+            'blackforest': 'forest-cakes',
+            'passion': 'fruit-citrus-cakes',
+            'white forest': 'forest-cakes',
+            'butter scotch': 'classic-cakes',
+            'redvelvet cake': 'classic-cakes',
+            'eggless cake': 'dietary-cakes',
+            'diabetic cake': 'dietary-cakes',
+            'cinnamon cherry': 'spiced-nut-cakes',
+            'carrot pineapple': 'spiced-nut-cakes',
+            'carrot nut cake': 'spiced-nut-cakes',
+            'chocolate orange': 'chocolate-cakes',
+            'pinacolada': 'fruit-citrus-cakes',
+            'zuchinni cake': 'spiced-nut-cakes',
+            'amarula blackforest': 'premium-cakes',
+            'chocolate chip cake': 'chocolate-cakes',
+            'banana cake': 'fruit-citrus-cakes',
+            'choc orange b/f': 'premium-cakes',
+            'coffee cake': 'premium-cakes',
+            'chocolate fudge cake': 'chocolate-cakes',
+            'fruit cake': 'fruit-citrus-cakes',
+            'rasberry cake': 'fruit-citrus-cakes',
+            'choc mint cake': 'chocolate-cakes',
+            'amarula whiteforest': 'premium-cakes',
+            'coconut orange cake': 'fruit-citrus-cakes',
+            'ice cream cake': 'premium-cakes',
+            'tiramisu': 'premium-cakes',
+            'cheese cake': 'premium-cakes',
+            'blueberry cake': 'fruit-citrus-cakes',
+            'coconut': 'fruit-citrus-cakes',
+            'caramel': 'classic-cakes',
+        }
+
+        if raw_key in explicit_map:
+            return explicit_map[raw_key]
+
+        if any(token in source for token in ['eggless', 'diabetic']):
+            return 'dietary-cakes'
+        if any(token in source for token in ['amarula', 'tiramisu', 'ice cream', 'coffee', 'cheese']):
+            return 'premium-cakes'
+        if any(token in source for token in ['black forest', 'white forest', 'b/f', 'forest']):
+            return 'forest-cakes'
+        if any(token in source for token in ['carrot', 'cinnamon', 'zucchini', 'nut']):
+            return 'spiced-nut-cakes'
+        if any(token in source for token in ['chocolate', 'choc', 'fudge', 'mint']):
+            return 'chocolate-cakes'
+        if any(token in source for token in ['strawberry', 'lemon', 'orange', 'passion', 'raspberry', 'blueberry', 'fruit', 'banana', 'coconut', 'pineapple', 'pina', 'cherry']):
+            return 'fruit-citrus-cakes'
+        if any(token in source for token in ['vanilla', 'marble', 'caramel', 'butterscotch', 'red velvet']):
+            return 'classic-cakes'
+        return 'premium-cakes'
+
+    @transaction.atomic
+    def _import_price_matrix_catalog(self, sheet):
+        headers, rows = self._sheet_rows(sheet)
+        name_col = 'name'
+        size_columns = [
+            header for header in headers
+            if header != name_col and re.search(r'\d+(?:\.\d+)?\s*kg$', header or '', re.IGNORECASE)
+        ]
+        if not size_columns:
+            raise RuntimeError('No weight/size columns found in price-matrix sheet.')
+
+        category_definitions = [
+            ('classic-cakes', 'Classic Cakes', 'Core favorites including vanilla, marble, caramel, and butterscotch cakes.'),
+            ('chocolate-cakes', 'Chocolate Cakes', 'Chocolate-forward cake collection including fudge, chip, and mint styles.'),
+            ('forest-cakes', 'Forest Cakes', 'Black Forest and White Forest cake styles, including specialty twists.'),
+            ('fruit-citrus-cakes', 'Fruit & Citrus Cakes', 'Fruit-inspired and citrus cake options like lemon, orange, berry, and tropical blends.'),
+            ('spiced-nut-cakes', 'Spiced & Nut Cakes', 'Warm and textured profiles including carrot, cinnamon, zucchini, and nut cakes.'),
+            ('premium-cakes', 'Premium Cakes', 'Distinctive premium flavors such as tiramisu, coffee, amarula, ice cream, and cheesecake cakes.'),
+            ('dietary-cakes', 'Dietary Cakes', 'Cake options tailored for eggless and diabetic requirements.'),
+        ]
+        categories = {}
+        for idx, (slug, name, description) in enumerate(category_definitions, start=1):
+            category, _ = Category.objects.update_or_create(
+                slug=slug,
+                defaults={
+                    'name': name,
+                    'description': description,
+                    'is_active': True,
+                    'order': idx,
+                },
+            )
+            categories[slug] = category
+
+        addon_defs = self._extract_note_addons(sheet)
+        addon_objects = []
+        for addon_data in addon_defs:
+            addon, _ = ProductAddon.objects.update_or_create(
+                slug=addon_data['slug'],
+                defaults=addon_data,
+            )
+            addon_objects.append(addon)
+
+        ProductVariant.objects.all().delete()
+
+        product_count = 0
+        variant_count = 0
+        for row in rows:
+            raw_name = row.get(name_col)
+            name = str(raw_name).strip() if raw_name is not None else ''
+            if not name:
+                continue
+
+            prices = []
+            for size in size_columns:
+                value = row.get(size)
+                if value in (None, ''):
+                    continue
+                price = self._parse_decimal(value, default=None)
+                if price is not None:
+                    prices.append((size, price))
+
+            if not prices:
+                continue
+
+            normalized_title = self._normalized_matrix_title(name)
+            category_slug = self._matrix_category_for_name(name, normalized_title)
+            category = categories[category_slug]
+
+            base_size, base_price = prices[0]
+            product_slug = self._slug(normalized_title)
+            if not product_slug:
+                continue
+
+            product, _ = Product.objects.update_or_create(
+                slug=product_slug,
+                defaults={
+                    'name': normalized_title,
+                    'description': f'{normalized_title} imported from Everest Cakes 2026 price list.',
+                    'short_description': normalized_title,
+                    'category': category,
+                    'base_price': base_price,
+                    'stock_quantity': 100,
+                    'is_available': True,
+                    'is_featured': False,
+                    'is_bestseller': False,
+                    'is_new': False,
+                    'serving_size': '',
+                    'min_lead_time': 24,
+                    'max_lead_time': 72,
+                    'enable_custom_message': True,
+                    'max_message_length': 50,
+                    'featured_image': '',
+                },
+            )
+
+            if addon_objects:
+                product.addons.set(addon_objects)
+
+            for index, (size_label, price_value) in enumerate(prices, start=1):
+                ProductVariant.objects.create(
+                    product=product,
+                    name=size_label,
+                    weight=size_label,
+                    price_adjustment=price_value - base_price,
+                    stock_quantity=100,
+                    is_default=(size_label == base_size),
+                    order=index,
+                )
+                variant_count += 1
+
+            product_count += 1
+
+        self.stdout.write(f'   ✓ Categories imported: {Category.objects.count()}')
+        self.stdout.write(f'   ✓ Addons imported: {ProductAddon.objects.count()}')
+        self.stdout.write(f'   ✓ Products imported: {product_count}')
+        self.stdout.write(f'   ✓ Variants imported: {variant_count}')
+
+    def _get_sheet_by_aliases(self, workbook, aliases, required=True):
+        alias_set = {self._normalize_header(name) for name in aliases}
+        for sheet_name in workbook.sheetnames:
+            normalized = self._normalize_header(sheet_name)
+            if normalized in alias_set:
+                return workbook[sheet_name]
+        if required:
+            raise RuntimeError(
+                f"Missing required sheet. Expected one of: {', '.join(aliases)}. Found: {', '.join(workbook.sheetnames)}"
+            )
+        return None
+
+    def _require_any_columns(self, headers, expected_sets, sheet_name):
+        available = set(headers)
+        for expected in expected_sets:
+            if any(column in available for column in expected):
+                return
+        expected_display = [' or '.join(cols) for cols in expected_sets]
+        raise RuntimeError(
+            f"Sheet '{sheet_name}' is missing required columns. Expected at least one of: {', '.join(expected_display)}"
+        )
+
+    @transaction.atomic
+    def _import_categories_sheet(self, sheet):
+        headers, rows = self._sheet_rows(sheet)
+        self._require_any_columns(headers, [('name',)], sheet.title)
+
+        categories_by_slug = {}
+        categories_by_name = {}
+
+        for order_index, row in enumerate(rows, start=1):
+            name = str(row.get('name') or '').strip()
+            if not name:
+                continue
+
+            slug = str(row.get('slug') or '').strip() or slugify(name)
+            description = str(row.get('description') or '').strip()
+            icon = str(row.get('icon') or '').strip()
+            order = self._parse_int(row.get('order'), default=order_index)
+            is_active = self._parse_bool(row.get('is_active'), default=True)
+
+            category, _ = Category.objects.update_or_create(
+                slug=slug,
+                defaults={
+                    'name': name,
+                    'description': description,
+                    'icon': icon,
+                    'order': order,
+                    'is_active': is_active,
+                },
+            )
+
+            categories_by_slug[slug.lower()] = category
+            categories_by_name[self._normalize_key(name)] = category
+
+        return len(categories_by_slug), categories_by_slug, categories_by_name
+
+    @transaction.atomic
+    def _import_addons_sheet(self, sheet):
+        headers, rows = self._sheet_rows(sheet)
+        self._require_any_columns(headers, [('name',)], sheet.title)
+
+        addons_by_slug = {}
+        addons_by_name = {}
+
+        for order_index, row in enumerate(rows, start=1):
+            name = str(row.get('name') or '').strip()
+            if not name:
+                continue
+
+            slug = str(row.get('slug') or '').strip() or slugify(name)
+            description = str(row.get('description') or '').strip()
+            price = self._parse_decimal(row.get('price'), default=Decimal('0'))
+            is_free = self._parse_bool(row.get('is_free'), default=(price == 0))
+            max_quantity = self._parse_int(row.get('max_quantity'), default=5)
+            order = self._parse_int(row.get('order'), default=order_index)
+            is_available = self._parse_bool(row.get('is_available'), default=True)
+
+            addon, _ = ProductAddon.objects.update_or_create(
+                slug=slug,
+                defaults={
+                    'name': name,
+                    'description': description,
+                    'price': price,
+                    'is_free': is_free,
+                    'max_quantity': max_quantity,
+                    'order': order,
+                    'is_available': is_available,
+                },
+            )
+
+            addons_by_slug[slug.lower()] = addon
+            addons_by_name[self._normalize_key(name)] = addon
+
+        return len(addons_by_slug), addons_by_slug, addons_by_name
+
+    @transaction.atomic
+    def _import_products_sheet(self, sheet, categories_by_slug, categories_by_name):
+        headers, rows = self._sheet_rows(sheet)
+        self._require_any_columns(headers, [('name',)], sheet.title)
+        self._require_any_columns(headers, [('category', 'category_name', 'category_slug')], sheet.title)
+
+        products_by_slug = {}
+        products_by_name = {}
+
+        for row in rows:
+            name = str(row.get('name') or '').strip()
+            if not name:
+                continue
+
+            slug = str(row.get('slug') or '').strip() or slugify(name)
+
+            category_slug = str(row.get('category_slug') or '').strip().lower()
+            category_name = self._normalize_key(row.get('category_name') or row.get('category'))
+            category = None
+            if category_slug:
+                category = categories_by_slug.get(category_slug)
+            if category is None and category_name:
+                category = categories_by_name.get(category_name)
+
+            if category is None:
+                raise RuntimeError(
+                    f"Product '{name}' references unknown category. Provide category_slug or category/category_name matching categories sheet."
+                )
+
+            description = str(row.get('description') or '').strip() or name
+            short_description = str(row.get('short_description') or '').strip()
+            base_price = self._parse_decimal(row.get('base_price'))
+            sale_price_raw = row.get('sale_price')
+            sale_price = self._parse_decimal(sale_price_raw, default=None) if sale_price_raw not in (None, '') else None
+            cost_price_raw = row.get('cost_price')
+            cost_price = self._parse_decimal(cost_price_raw, default=None) if cost_price_raw not in (None, '') else None
+
+            product, _ = Product.objects.update_or_create(
+                slug=slug,
+                defaults={
+                    'name': name,
+                    'description': description,
+                    'short_description': short_description,
+                    'category': category,
+                    'base_price': base_price,
+                    'sale_price': sale_price,
+                    'cost_price': cost_price,
+                    'featured_image': str(row.get('featured_image') or ''),
+                    'stock_quantity': self._parse_int(row.get('stock_quantity'), default=100),
+                    'min_order_quantity': self._parse_int(row.get('min_order_quantity'), default=1),
+                    'max_order_quantity': self._parse_int(row.get('max_order_quantity'), default=10),
+                    'is_available': self._parse_bool(row.get('is_available'), default=True),
+                    'is_featured': self._parse_bool(row.get('is_featured'), default=False),
+                    'is_bestseller': self._parse_bool(row.get('is_bestseller'), default=False),
+                    'is_new': self._parse_bool(row.get('is_new'), default=False),
+                    'serving_size': str(row.get('serving_size') or '').strip(),
+                    'min_lead_time': self._parse_int(row.get('min_lead_time'), default=24),
+                    'max_lead_time': self._parse_int(row.get('max_lead_time'), default=72),
+                    'enable_custom_message': self._parse_bool(row.get('enable_custom_message'), default=True),
+                    'max_message_length': self._parse_int(row.get('max_message_length'), default=50),
+                },
+            )
+
+            products_by_slug[slug.lower()] = product
+            products_by_name[self._normalize_key(name)] = product
+
+        return products_by_slug, products_by_name
+
+    @transaction.atomic
+    def _import_variants_sheet(self, sheet, products_by_slug, products_by_name):
+        headers, rows = self._sheet_rows(sheet)
+        self._require_any_columns(headers, [('name', 'variant_name')], sheet.title)
+        self._require_any_columns(headers, [('product', 'product_name', 'product_slug')], sheet.title)
+
+        ProductVariant.objects.all().delete()
+
+        created_count = 0
+        for order_index, row in enumerate(rows, start=1):
+            product_slug = str(row.get('product_slug') or '').strip().lower()
+            product_name = self._normalize_key(row.get('product_name') or row.get('product'))
+
+            product = None
+            if product_slug:
+                product = products_by_slug.get(product_slug)
+            if product is None and product_name:
+                product = products_by_name.get(product_name)
+
+            if product is None:
+                raise RuntimeError(
+                    'Variant row references unknown product. Provide product_slug or product/product_name matching products sheet.'
+                )
+
+            variant_name = str(row.get('name') or row.get('variant_name') or '').strip()
+            if not variant_name:
+                continue
+
+            ProductVariant.objects.create(
+                product=product,
+                name=variant_name,
+                weight=str(row.get('weight') or '').strip(),
+                price_adjustment=self._parse_decimal(row.get('price_adjustment')),
+                stock_quantity=self._parse_int(row.get('stock_quantity'), default=100),
+                is_default=self._parse_bool(row.get('is_default'), default=False),
+                order=self._parse_int(row.get('order'), default=order_index),
+            )
+            created_count += 1
+
+        return created_count
+
+    @transaction.atomic
+    def _map_product_addons_from_products_sheet(
+        self,
+        products_sheet,
+        products_by_slug,
+        products_by_name,
+        addons_by_slug,
+        addons_by_name,
+    ):
+        _, rows = self._sheet_rows(products_sheet)
+
+        linked_count = 0
+        for row in rows:
+            raw_addons = row.get('addons')
+            if raw_addons in (None, ''):
+                continue
+
+            product_slug = str(row.get('slug') or '').strip().lower()
+            product_name = self._normalize_key(row.get('name'))
+            product = products_by_slug.get(product_slug) if product_slug else None
+            if product is None and product_name:
+                product = products_by_name.get(product_name)
+            if product is None:
+                continue
+
+            addon_tokens = [token.strip() for token in str(raw_addons).split(',') if token and token.strip()]
+            if not addon_tokens:
+                continue
+
+            product.addons.clear()
+            for token in addon_tokens:
+                normalized_name = self._normalize_key(token)
+                addon = addons_by_slug.get(token.lower()) or addons_by_name.get(normalized_name)
+                if addon is None:
+                    raise RuntimeError(
+                        f"Product '{product.name}' references unknown addon '{token}' in products sheet 'addons' column."
+                    )
+                product.addons.add(addon)
+                linked_count += 1
+
+        return linked_count
+
+    @transaction.atomic
+    def _import_product_addons_sheet(
+        self,
+        sheet,
+        products_by_slug,
+        products_by_name,
+        addons_by_slug,
+        addons_by_name,
+    ):
+        headers, rows = self._sheet_rows(sheet)
+        self._require_any_columns(headers, [('product', 'product_name', 'product_slug')], sheet.title)
+        self._require_any_columns(headers, [('addon', 'addon_name', 'addon_slug')], sheet.title)
+
+        linked_count = 0
+        for row in rows:
+            product_slug = str(row.get('product_slug') or '').strip().lower()
+            product_name = self._normalize_key(row.get('product_name') or row.get('product'))
+            addon_slug = str(row.get('addon_slug') or '').strip().lower()
+            addon_name = self._normalize_key(row.get('addon_name') or row.get('addon'))
+
+            product = products_by_slug.get(product_slug) if product_slug else None
+            if product is None and product_name:
+                product = products_by_name.get(product_name)
+            if product is None:
+                raise RuntimeError(
+                    f"Unknown product in '{sheet.title}' sheet. Row product: {row.get('product') or row.get('product_name') or row.get('product_slug')}"
+                )
+
+            addon = addons_by_slug.get(addon_slug) if addon_slug else None
+            if addon is None and addon_name:
+                addon = addons_by_name.get(addon_name)
+            if addon is None:
+                raise RuntimeError(
+                    f"Unknown addon in '{sheet.title}' sheet. Row addon: {row.get('addon') or row.get('addon_name') or row.get('addon_slug')}"
+                )
+
+            product.addons.add(addon)
+            linked_count += 1
+
+        return linked_count
 
     def clear_data(self):
         """Clear existing data"""
